@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+{% if not product %}
+<h1>Tuotetta ei löytynyt</h1>
+{% else %}
+<h1>{{ product.name }}</h1>
+<p>Tuotenumero: {{ id }}</p>
+<p>Hinta: {{ product.price.replace('.', ',') }} €</p>
+<p>Saatavilla: {{ product.quantity }}</p>
+{% if product.description %}
+<p>Kuvaus: {{ product.description }}</p>
+{% endif %}
+{% endif %}
+{% endblock %}

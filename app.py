@@ -113,7 +113,19 @@ def all_products():
         result = db.session.execute(query)
         products = result.fetchall()
         return render_template("all_products.html", products=products)
-        
+
+@app.route("/product/<int:id>")
+def page(id):
+    try:
+        username = session["username"]
+    except KeyError:
+        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+        return redirect("/error")
+    query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
+    result = db.session.execute(query, {"id": id})
+    product = result.fetchone()
+    return render_template("product.html", id=id, product=product)
+
 @app.route("/error")
 def error():
     return render_template("error.html")
