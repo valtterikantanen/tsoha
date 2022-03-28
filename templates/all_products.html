@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Kaikki tuotteet</h1>
+
+<table>
+    <tr>
+        <th>Nimi</th>
+        <th>Hinta</th>
+        <th>Varastossa</th>
+    </tr>
+    {% if products %}
+    {% for product in products %}
+    <tr>
+        <td><a href="product/{{ product.id }}">{{ product.name }}</a></td>
+        <td>{{ product.price.replace('.', ',') }} €</td>
+        <td>{{ product.quantity }}</td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+</table>
+
+{% endblock %}

@@ -100,6 +100,19 @@ def add_product():
         db.session.commit()
         flash(f"Tuote {name} lisätty!", category="success")
         return render_template("new_product.html")
+
+@app.route("/all-products")
+def all_products():
+    if request.method == "GET":
+        try:
+            username = session["username"]
+        except KeyError:
+            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+            return redirect("/error")
+        query = "SELECT id, name, description, CAST (price AS TEXT) AS price, quantity FROM products"
+        result = db.session.execute(query)
+        products = result.fetchall()
+        return render_template("all_products.html", products=products)
         
 @app.route("/error")
 def error():
