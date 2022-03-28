@@ -24,12 +24,12 @@ def index():
         user = result.fetchone()
         if not user:
             flash("Käyttäjää ei löytynyt", category="error")
-            return redirect("/")
+            return render_template("index.html")
         if check_password_hash(user.password, password):
             session["username"] = username
-            return redirect("/")
+            return render_template("index.html")
         flash("Väärä salasana", category="error")
-        return redirect("/")
+        return render_template("index.html")
         
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -41,16 +41,16 @@ def register():
         password2 = request.form["password2"]
         if len(password1) < 5:
             flash("Salasanassa tulee olla vähintään viisi merkkiä", category="error")
-            return redirect("/register")
+            return render_template("register.html")
         if password1 != password2:
             flash("Salasanat eivät täsmää", category="error")
-            return redirect("/register")
+            return render_template("register.html")
         query = "SELECT COUNT(*) FROM users WHERE LOWER(username)=:username"
         result = db.session.execute(query, {"username": username.lower()})
         user_count = result.fetchone()[0]
         if user_count != 0:
             flash("Käyttäjätunnus on jo käytössä", category="error")
-            return redirect("/register")
+            return render_template("register.html")
         query = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'customer')"
         db.session.execute(query, {"username": username, "password": generate_password_hash(password1)})
         db.session.commit()
@@ -61,3 +61,7 @@ def register():
 def logout():
     del session["username"]
     return redirect("/")
+        
+@app.route("/error")
+def error():
+    return render_template("error.html")
