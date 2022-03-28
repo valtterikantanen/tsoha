@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Etusivu</h1>
+<a href="/register">Luo uusi käyttäjätili</a>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+{% endblock %}

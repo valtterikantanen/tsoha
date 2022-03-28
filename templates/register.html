@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Luo uusi käyttäjätili</h1>
+<form action="/register" method="POST">
+    Käyttäjätunnus: <input type="text" name="username"> <br>
+    Salasana: <input type="password" name="password1"> <br>
+    Vahvista salasana: <input type="password" name="password2"> <br>
+    <input type="submit" value="Luo käyttäjätili">
+</form>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+{% endblock %}
