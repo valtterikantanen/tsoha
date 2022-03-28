@@ -61,6 +61,45 @@ def register():
 def logout():
     del session["username"]
     return redirect("/")
+
+@app.route("/new-product", methods=["GET", "POST"])
+def add_product():
+    if request.method == "GET":
+        try:
+            username = session["username"]
+        except KeyError:
+            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+            return redirect("/error")
+        query = "SELECT role FROM users WHERE username=:username"
+        result = db.session.execute(query, {"username": username})
+        role = result.fetchone()[0]
+        if role == "employee":
+            return(render_template("new_product.html"))
+        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+        return redirect("/error")
+    if request.method == "POST":
+        name = request.form["name"]
+        description = request.form["description"]
+
+        if not name.strip():
+            flash("Syötä tuotteen nimi", category="error")
+            return render_template("new_product.html")
+        try:
+            quantity = int(request.form["quantity"])
+        except ValueError:
+            flash("Syötä varastosaldo", category="error")
+            return render_template("new_product.html")
+        try:
+            price = float(request.form["price"])
+        except ValueError:
+            flash("Syötä hinta", category="error")
+            return render_template("new_product.html")
+        
+        query = "INSERT INTO products (name, description, price, quantity) VALUES (:name, :description, :price, :quantity)"
+        db.session.execute(query, {"name": name, "description": description, "price": price, "quantity": quantity})
+        db.session.commit()
+        flash(f"Tuote {name} lisätty!", category="success")
+        return render_template("new_product.html")
         
 @app.route("/error")
 def error():
