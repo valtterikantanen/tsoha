@@ -3,7 +3,7 @@ from os import getenv
 from flask import Flask
 from flask import flash, redirect, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URL")
@@ -12,9 +12,24 @@ app.secret_key = getenv("SECRET_KEY")
 
 db = SQLAlchemy(app)
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template("index.html")
+    if request.method == "GET":
+        return render_template("index.html")
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        query = "SELECT password FROM users WHERE username=:username"
+        result = db.session.execute(query, {"username": username})
+        user = result.fetchone()
+        if not user:
+            flash("Käyttäjää ei löytynyt", category="error")
+            return redirect("/")
+        if check_password_hash(user.password, password):
+            session["username"] = username
+            return redirect("/")
+        flash("Väärä salasana", category="error")
+        return redirect("/")
         
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -41,3 +56,8 @@ def register():
         db.session.commit()
         session["username"] = username
         return redirect("/")
+
+@app.route("/logout")
+def logout():
+    del session["username"]
+    return redirect("/")

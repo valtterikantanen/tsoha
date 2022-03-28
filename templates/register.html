@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Luo uusi käyttäjätili</h1>
+{% if session.username %}
+<p>Olet jo kirjautunut sisään nimellä <b>{{ session.username }}</b></p>
+<a href="/logout">Kirjaudu ulos</a>
+{% else %}
+<p>Onko sinulla tili? <a href="/">Kirjaudu sisään</a></p>
 <form action="/register" method="POST">
     Käyttäjätunnus: <input type="text" name="username"> <br>
     Salasana: <input type="password" name="password1"> <br>
@@ -14,4 +19,5 @@
 {% endfor %}
 {% endif %}
 {% endwith %}
+{% endif %}
 {% endblock %}

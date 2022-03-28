@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Etusivu</h1>
+{% if session.username %}
+<p>Olet kirjautunut sisään nimellä <b>{{ session.username }}</b></p>
+<a href="/logout">Kirjaudu ulos</a>
+{% else %}
+<h2>Kirjautuminen</h2>
+<form action="/" method="POST">
+    Käyttäjätunnus: <input type="text" name="username"> <br>
+    Salasana: <input type="password" name="password"> <br>
+    <input type="submit" value="Kirjaudu sisään">
+</form>
+<br>
 <a href="/register">Luo uusi käyttäjätili</a>
 {% with messages = get_flashed_messages() %}
 {% if messages %}
@@ -9,4 +20,5 @@
 {% endfor %}
 {% endif %}
 {% endwith %}
+{% endif %}
 {% endblock %}
