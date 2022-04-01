@@ -57,6 +57,13 @@ def register():
         session["username"] = username
         return redirect("/")
 
+def is_employee():
+    username = session["username"]
+    query = "SELECT role FROM users WHERE username=:username"
+    result = db.session.execute(query, {"username": username})
+    role = result.fetchone()[0]
+    return role == "employee"
+
 @app.route("/logout")
 def logout():
     del session["username"]
@@ -70,10 +77,7 @@ def new_product():
         except KeyError:
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
-        query = "SELECT role FROM users WHERE username=:username"
-        result = db.session.execute(query, {"username": username})
-        role = result.fetchone()[0]
-        if role == "employee":
+        if is_employee():
             return(render_template("new_product.html"))
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
