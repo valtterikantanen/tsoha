@@ -63,7 +63,7 @@ def logout():
     return redirect("/")
 
 @app.route("/new-product", methods=["GET", "POST"])
-def add_product():
+def new_product():
     if request.method == "GET":
         try:
             username = session["username"]
@@ -115,7 +115,7 @@ def all_products():
         return render_template("all_products.html", products=products)
 
 @app.route("/product/<int:id>")
-def page(id):
+def product(id):
     try:
         username = session["username"]
     except KeyError:
