@@ -82,11 +82,6 @@ def logout():
 @app.route("/new-product", methods=["GET", "POST"])
 def new_product():
     if request.method == "GET":
-        try:
-            username = session["username"]
-        except KeyError:
-            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-            return redirect("/error")
         if is_employee():
             return(render_template("new_product.html"))
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
