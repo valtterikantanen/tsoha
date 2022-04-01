@@ -56,9 +56,9 @@ def register():
         if user_count != 0:
             flash("Käyttäjätunnus on jo käytössä", category="error")
             errors = True
-        if errors: 
+        if errors:
             return render_template("register.html")
-        query = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'customer')"
+        query = "INSERT INTO users (username, password) VALUES (:username, :password)"
         db.session.execute(query, {"username": username, "password": generate_password_hash(password1)})
         db.session.commit()
         session["username"] = username
@@ -87,28 +87,32 @@ def new_product():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     if request.method == "POST":
+        errors = False
         name = request.form["name"]
         description = request.form["description"]
 
         if not name.strip():
             flash("Syötä tuotteen nimi", category="error")
-            return render_template("new_product.html")
+            errors = True
         try:
             quantity = int(request.form["quantity"])
         except ValueError:
             flash("Syötä varastosaldo", category="error")
-            return render_template("new_product.html")
+            errors = True
         try:
             price = float(request.form["price"])
         except ValueError:
             flash("Syötä hinta", category="error")
+            errors = True
+        if errors:
             return render_template("new_product.html")
         
-        query = "INSERT INTO products (name, description, price, quantity) VALUES (:name, :description, :price, :quantity)"
-        db.session.execute(query, {"name": name, "description": description, "price": price, "quantity": quantity})
+        query = "INSERT INTO products (name, description, price, quantity) VALUES (:name, :description, :price, :quantity) RETURNING id"
+        result = db.session.execute(query, {"name": name, "description": description, "price": price, "quantity": quantity})
+        id = result.fetchone()[0]
         db.session.commit()
-        flash(f"Tuote {name} lisätty!", category="success")
-        return render_template("new_product.html")
+        flash("Tuote lisätty!", category="success")
+        return redirect(url_for("product", id=id))
 
 @app.route("/all-products", methods=["GET", "POST"])
 def all_products():
@@ -163,7 +167,7 @@ def edit_product(id):
         db.session.execute(query, {"name": name, "quantity": quantity, "price": price, "description": description, "id": id})
         db.session.commit()
         flash("Tuotteen tiedot päivitetty!", category="success")
-        return redirect(url_for('product', id=id))
+        return redirect(url_for("product", id=id))
 
 @app.route("/error")
 def error():
