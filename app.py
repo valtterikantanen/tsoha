@@ -110,18 +110,27 @@ def new_product():
         flash(f"Tuote {name} lisätty!", category="success")
         return render_template("new_product.html")
 
-@app.route("/all-products")
+@app.route("/all-products", methods=["GET", "POST"])
 def all_products():
+    options = {
+        "price-desc": "ORDER BY price DESC",
+        "price-asc": "ORDER BY price",
+        "alpha-asc": "ORDER BY name",
+        "alpha-desc": "ORDER BY name DESC"
+    }
     if request.method == "GET":
         try:
             username = session["username"]
         except KeyError:
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
-        query = "SELECT id, name, description, CAST (price AS TEXT) AS price, quantity FROM products"
-        result = db.session.execute(query)
-        products = result.fetchall()
-        return render_template("all_products.html", products=products)
+        order = "alpha-asc"
+    if request.method == "POST":
+        order = request.form["order"]
+    query = f"SELECT id, name, description, price, quantity FROM products {options[order]}"
+    result = db.session.execute(query)
+    products = result.fetchall()
+    return render_template("all_products.html", products=products)
 
 @app.route("/product/<int:id>")
 def product(id):

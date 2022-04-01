@@ -2,21 +2,29 @@
 {% block content %}
 <h1>Kaikki tuotteet</h1>
 
+{% if products %}
+<form action="/all-products" METHOD="POST">
+    <select id="order" name="order">
+        <option value="price-asc">Edullisimmat ensin</option>
+        <option value="price-desc">Kalleimmat ensin</option>
+        <option value="alpha-asc">Tuotenimi (A-Ö)</option>
+        <option value="alpha-desc">Tuotenimi (Ö-A)</option>
+    </select>
+    <input type="submit" value="Järjestä">
+</form>
 <table>
     <tr>
         <th>Nimi</th>
         <th>Hinta</th>
         <th>Varastossa</th>
     </tr>
-    {% if products %}
     {% for product in products %}
     <tr>
         <td><a href="product/{{ product.id }}">{{ product.name }}</a></td>
-        <td>{{ product.price.replace('.', ',') }} €</td>
+        <td>{{ ("%.2f" % product.price).replace(".", ",") }} €</td>
         <td>{{ product.quantity }}</td>
     </tr>
     {% endfor %}
-    {% endif %}
 </table>
-
+{% endif %}
 {% endblock %}
