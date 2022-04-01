@@ -2,7 +2,7 @@ from os import getenv
 import re
 
 from flask import Flask
-from flask import flash, redirect, render_template, request, session
+from flask import flash, redirect, render_template, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -134,6 +134,27 @@ def product(id):
     result = db.session.execute(query, {"id": id})
     product = result.fetchone()
     return render_template("product.html", id=id, product=product, role=is_employee())
+
+@app.route("/edit-product/<int:id>", methods=["GET", "POST"])
+def edit_product(id):
+    if request.method == "GET":
+        if not is_employee():
+            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+            return redirect("/error")
+        query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
+        result = db.session.execute(query, {"id": id})
+        product = result.fetchone()
+        return render_template("edit_product.html", id=id, product=product)
+    if request.method == "POST":
+        name = request.form["name"]
+        quantity = request.form["quantity"]
+        price = request.form["price"]
+        description = request.form["description"]
+        query = "UPDATE products SET name=:name, quantity=:quantity, price=:price, description=:description WHERE id=:id"
+        db.session.execute(query, {"name": name, "quantity": quantity, "price": price, "description": description, "id": id})
+        db.session.commit()
+        flash("Tuotteen tiedot päivitetty!", category="success")
+        return redirect(url_for('product', id=id))
 
 @app.route("/error")
 def error():

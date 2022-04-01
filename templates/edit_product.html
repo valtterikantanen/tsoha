@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+{% if not product %}
+<h1>Tuotetta ei löytynyt</h1>
+{% else %}
+<h1>Muokkaa tuotetietoja</h1>
+<form action="/edit-product/{{ id }}" method="POST">
+    <label for="name">Nimi:</label>
+    <input type="text" id="name" name="name" value="{{ product.name }}"><br>
+    <label for="quantity">Saldo:</label>
+    <input type="number" id="quantity" name="quantity" min="0" value="{{ product.quantity }}"><br>
+    <label for="price">Hinta:</label>
+    <input type="number" id="price" name="price" step="0.01" min="0" max="999999.99" value="{{ product.price }}"><br>
+    <label for="description">Kuvaus:</label>
+    <textarea name="description" rows="4" cols="50">{{ product.description }}</textarea><br>
+    <input type="submit" value="Päivitä tiedot">
+</form>
+{% endif %}
+{% endblock %}
