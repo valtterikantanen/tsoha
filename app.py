@@ -58,11 +58,14 @@ def register():
         return redirect("/")
 
 def is_employee():
-    username = session["username"]
-    query = "SELECT role FROM users WHERE username=:username"
-    result = db.session.execute(query, {"username": username})
-    role = result.fetchone()[0]
-    return role == "employee"
+    try:
+        username = session["username"]
+        query = "SELECT role FROM users WHERE username=:username"
+        result = db.session.execute(query, {"username": username})
+        role = result.fetchone()[0]
+        return role == "employee"
+    except:
+        return False
 
 @app.route("/logout")
 def logout():
@@ -128,7 +131,7 @@ def product(id):
     query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
     result = db.session.execute(query, {"id": id})
     product = result.fetchone()
-    return render_template("product.html", id=id, product=product)
+    return render_template("product.html", id=id, product=product, role=is_employee())
 
 @app.route("/error")
 def error():
