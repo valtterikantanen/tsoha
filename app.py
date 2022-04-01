@@ -1,4 +1,5 @@
 from os import getenv
+import re
 
 from flask import Flask
 from flask import flash, redirect, render_template, request, session
@@ -39,6 +40,8 @@ def register():
         username = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
+        if not re.match("^[a-zA-Z0-9]+$", username):
+            flash("Käyttäjätunnus voi sisältää vain kirjaimia a–z ja numeroita 0–9", category="error")
         if len(password1) < 5:
             flash("Salasanassa tulee olla vähintään viisi merkkiä", category="error")
             return render_template("register.html")
