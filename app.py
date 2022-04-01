@@ -37,22 +37,26 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
     if request.method == "POST":
+        errors = False
         username = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
         if not re.match("^[a-zA-Z0-9]+$", username):
             flash("Käyttäjätunnus voi sisältää vain kirjaimia a–z ja numeroita 0–9", category="error")
+            errors = True
         if len(password1) < 5:
             flash("Salasanassa tulee olla vähintään viisi merkkiä", category="error")
-            return render_template("register.html")
+            errors = True
         if password1 != password2:
             flash("Salasanat eivät täsmää", category="error")
-            return render_template("register.html")
+            errors = True
         query = "SELECT COUNT(*) FROM users WHERE LOWER(username)=:username"
         result = db.session.execute(query, {"username": username.lower()})
         user_count = result.fetchone()[0]
         if user_count != 0:
             flash("Käyttäjätunnus on jo käytössä", category="error")
+            errors = True
+        if errors: 
             return render_template("register.html")
         query = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'customer')"
         db.session.execute(query, {"username": username, "password": generate_password_hash(password1)})
