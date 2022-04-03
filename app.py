@@ -129,13 +129,10 @@ def all_products():
         "alpha-asc": "ORDER BY name",
         "alpha-desc": "ORDER BY name DESC"
     }
-    if request.method == "GET":
-        if not is_logged_in():
-            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-            return redirect("/error")
-        order = "alpha-asc"
-    if request.method == "POST":
-        order = request.form["order"]
+    if not is_logged_in():
+        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+        return redirect("/error")
+    order = request.form["order"] if request.method == "POST" else "alpha-asc"
     query = f"SELECT id, name, description, price, quantity FROM products {options[order]}"
     result = db.session.execute(query)
     products = result.fetchall()
@@ -160,7 +157,7 @@ def edit_product(id):
         query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
         result = db.session.execute(query, {"id": id})
         product = result.fetchone()
-        return render_template("edit_product.html", id=id, product=product, employee=is_employee())
+        return render_template("edit_product.html", id=id, product=product)
     if request.method == "POST":
         name = request.form["name"]
         quantity = request.form["quantity"]
