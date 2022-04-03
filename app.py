@@ -74,6 +74,9 @@ def is_employee():
     except:
         return False
 
+def is_logged_in():
+    return session.get("username")
+
 @app.route("/logout")
 def logout():
     del session["username"]
@@ -123,9 +126,7 @@ def all_products():
         "alpha-desc": "ORDER BY name DESC"
     }
     if request.method == "GET":
-        try:
-            username = session["username"]
-        except KeyError:
+        if not is_logged_in():
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
         order = "alpha-asc"
@@ -138,9 +139,7 @@ def all_products():
 
 @app.route("/product/<int:id>")
 def product(id):
-    try:
-        username = session["username"]
-    except KeyError:
+    if not is_logged_in():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
