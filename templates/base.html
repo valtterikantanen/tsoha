@@ -6,6 +6,18 @@
 </head>
 
 <body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for("index") }}">Etusivu</a></li>
+                <li><a href="{{ url_for("all_products") }}">Tuotteet</a></li>
+                {% if employee %}
+                <li><a href="{{ url_for("new_product") }}">Lisää tuote</a></li>
+                {% endif %}
+                <li><a href="{{ url_for("logout") }}">Kirjaudu ulos</a></li>
+            </ul>
+        </nav>
+    </header>
     {% block content %}{% endblock %}
 </body>
 

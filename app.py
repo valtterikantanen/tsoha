@@ -16,7 +16,9 @@ db = SQLAlchemy(app)
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
-        return render_template("index.html")
+        if is_logged_in():
+            return render_template("index.html", employee=is_employee())
+        return render_template("login.html")
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -25,17 +27,19 @@ def index():
         user = result.fetchone()
         if not user:
             flash("Käyttäjää ei löytynyt", category="error")
-            return render_template("index.html")
+            return render_template("login.html")
         if check_password_hash(user.password, password):
             session["username"] = username
-            return render_template("index.html")
+            return render_template("index.html", employee=is_employee())
         flash("Väärä salasana", category="error")
-        return render_template("index.html")
+        return render_template("login.html")
         
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
+        if not is_logged_in():
+            return render_template("register.html")
+        return redirect("/")
     if request.method == "POST":
         errors = False
         username = request.form["username"]
@@ -86,7 +90,7 @@ def logout():
 def new_product():
     if request.method == "GET":
         if is_employee():
-            return(render_template("new_product.html"))
+            return(render_template("new_product.html", employee=is_employee()))
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     if request.method == "POST":
@@ -108,7 +112,7 @@ def new_product():
             flash("Syötä hinta", category="error")
             errors = True
         if errors:
-            return render_template("new_product.html")
+            return render_template("new_product.html", employee=is_employee())
         
         query = "INSERT INTO products (name, description, price, quantity) VALUES (:name, :description, :price, :quantity) RETURNING id"
         result = db.session.execute(query, {"name": name, "description": description, "price": price, "quantity": quantity})
@@ -135,7 +139,7 @@ def all_products():
     query = f"SELECT id, name, description, price, quantity FROM products {options[order]}"
     result = db.session.execute(query)
     products = result.fetchall()
-    return render_template("all_products.html", products=products)
+    return render_template("all_products.html", products=products, employee=is_employee())
 
 @app.route("/product/<int:id>")
 def product(id):
@@ -145,7 +149,7 @@ def product(id):
     query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
     result = db.session.execute(query, {"id": id})
     product = result.fetchone()
-    return render_template("product.html", id=id, product=product, role=is_employee())
+    return render_template("product.html", id=id, product=product, employee=is_employee())
 
 @app.route("/edit-product/<int:id>", methods=["GET", "POST"])
 def edit_product(id):
@@ -156,7 +160,7 @@ def edit_product(id):
         query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
         result = db.session.execute(query, {"id": id})
         product = result.fetchone()
-        return render_template("edit_product.html", id=id, product=product)
+        return render_template("edit_product.html", id=id, product=product, employee=is_employee())
     if request.method == "POST":
         name = request.form["name"]
         quantity = request.form["quantity"]

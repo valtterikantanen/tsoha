@@ -10,8 +10,8 @@
 {% if product.description %}
 <p>Kuvaus: {{ product.description }}</p>
 {% endif %}
-{% if role %}
-<p><a href="{{ url_for('edit_product', id=id) }}">Muokkaa tuotetietoja</a></p>
+{% if employee %}
+<p><a href="{{ url_for("edit_product", id=id) }}">Muokkaa tuotetietoja</a></p>
 {% endif %}
 {% with messages = get_flashed_messages() %}
 {% if messages %}
