@@ -1,4 +1,12 @@
 {% extends "base.html" %}
+{% block title %}
+{% if not product %}
+Tuotetta ei löytynyt
+{% else %}
+{{ product.name }}
+{% endif %}
+{% endblock %}
+
 {% block content %}
 {% if not product %}
 <h1>Tuotetta ei löytynyt</h1>
