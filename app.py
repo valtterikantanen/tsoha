@@ -115,9 +115,11 @@ def new_product():
         if errors:
             return render_template("new_product.html", employee=is_employee())
         
-        query = "INSERT INTO products (name, description, price, quantity) VALUES (:name, :description, :price, :quantity) RETURNING id"
-        result = db.session.execute(query, {"name": name, "description": description, "price": price, "quantity": quantity})
-        id = result.fetchone()[0]
+        query = "INSERT INTO products (name, description, quantity) VALUES (:name, :description, :quantity) RETURNING id"
+        result = db.session.execute(query, {"name": name, "description": description, "quantity": quantity})
+        product_id = result.fetchone()[0]
+        query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
+        db.session.execute(query, {"product_id": product_id, "price": price})
         db.session.commit()
         flash("Tuote lisätty!", category="success")
         return redirect(url_for("product", id=id))
@@ -125,16 +127,16 @@ def new_product():
 @app.route("/all-products", methods=["GET", "POST"])
 def all_products():
     options = {
-        "price-desc": "ORDER BY price DESC",
-        "price-asc": "ORDER BY price",
-        "alpha-asc": "ORDER BY name",
-        "alpha-desc": "ORDER BY name DESC"
+        "price-desc": "ORDER BY B.price DESC",
+        "price-asc": "ORDER BY B.price",
+        "alpha-asc": 'ORDER BY A.name COLLATE "fi_FI"',
+        "alpha-desc": 'ORDER BY A.name COLLATE "fi_FI" DESC'
     }
     if not is_logged_in():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     order = request.form["order"] if request.method == "POST" else "alpha-asc"
-    query = f'SELECT id, name COLLATE "fi_FI", description, price, quantity FROM products {options[order]}'
+    query = f"SELECT A.id, A.name, A.description, B.price, A.quantity FROM products A, (SELECT DISTINCT ON (product_id) product_id, price FROM prices ORDER BY product_id, created_at DESC) B WHERE A.id=B.product_id AND A.visible=TRUE {options[order]}"
     result = db.session.execute(query)
     products = result.fetchall()
     return render_template("all_products.html", products=products, employee=is_employee())
@@ -144,7 +146,7 @@ def product(id):
     if not is_logged_in():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
-    query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
+    query = "SELECT A.name, A.description, B.price, A.quantity FROM products A, prices B WHERE A.id=:id AND B.product_id=:id ORDER BY B.created_at DESC LIMIT 1"
     result = db.session.execute(query, {"id": id})
     product = result.fetchone()
     return render_template("product.html", id=id, product=product, employee=is_employee())
@@ -155,7 +157,7 @@ def edit_product(id):
         if not is_employee():
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
-        query = "SELECT name, description, CAST (price AS TEXT) AS price, quantity FROM products WHERE id=:id"
+        query = "SELECT A.name, A.description, B.price, A.quantity FROM products A, prices B WHERE A.id=:id AND B.product_id=:id ORDER BY B.created_at DESC LIMIT 1"
         result = db.session.execute(query, {"id": id})
         product = result.fetchone()
         return render_template("edit_product.html", id=id, product=product)
@@ -164,9 +166,15 @@ def edit_product(id):
         quantity = request.form["quantity"]
         price = request.form["price"]
         description = request.form["description"]
-        query = "UPDATE products SET name=:name, quantity=:quantity, price=:price, description=:description WHERE id=:id"
-        db.session.execute(query, {"name": name, "quantity": quantity, "price": price, "description": description, "id": id})
+        query = "UPDATE products SET name=:name, quantity=:quantity, description=:description WHERE id=:id"
+        db.session.execute(query, {"name": name, "quantity": quantity, "description": description, "id": id})
         db.session.commit()
+        query = "SELECT price FROM prices WHERE product_id=:id ORDER BY created_at DESC LIMIT 1"
+        current_price = db.session.execute(query, {"id": id}).fetchone()[0]
+        if current_price != price:
+            query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
+            db.session.execute(query, {"product_id": id, "price": price})
+            db.session.commit()
         flash("Tuotteen tiedot päivitetty!", category="success")
         return redirect(url_for("product", id=id))
 
