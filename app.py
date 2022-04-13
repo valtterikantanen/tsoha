@@ -147,9 +147,10 @@ def product(id):
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     query = "SELECT A.name, A.description, B.price, A.quantity FROM products A, prices B WHERE A.id=:id AND B.product_id=:id ORDER BY B.created_at DESC LIMIT 1"
-    result = db.session.execute(query, {"id": id})
-    product = result.fetchone()
-    return render_template("product.html", id=id, product=product, employee=is_employee())
+    product = db.session.execute(query, {"id": id}).fetchone()
+    query = "SELECT price, created_at FROM prices WHERE product_id=:id ORDER BY created_at DESC"
+    price_history = db.session.execute(query, {"id": id}).fetchall()
+    return render_template("product.html", id=id, product=product, employee=is_employee(), price_history=price_history)
 
 @app.route("/edit-product/<int:id>", methods=["GET", "POST"])
 def edit_product(id):
