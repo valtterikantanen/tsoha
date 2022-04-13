@@ -134,7 +134,7 @@ def all_products():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     order = request.form["order"] if request.method == "POST" else "alpha-asc"
-    query = f"SELECT id, name, description, price, quantity FROM products {options[order]}"
+    query = f'SELECT id, name COLLATE "fi_FI", description, price, quantity FROM products {options[order]}'
     result = db.session.execute(query)
     products = result.fetchall()
     return render_template("all_products.html", products=products, employee=is_employee())
