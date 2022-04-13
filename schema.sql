@@ -18,3 +18,15 @@ CREATE TABLE prices (
     price NUMERIC(8,2) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE addresses (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER REFERENCES users,
+    full_name TEXT NOT NULL,
+    street_address TEXT NOT NULL,
+    zip_code TEXT NOT NULL,
+    city TEXT NOT NULL,
+    phone_number TEXT NOT NULL,
+    email TEXT NOT NULL,
+    visible BOOLEAN DEFAULT TRUE
+);

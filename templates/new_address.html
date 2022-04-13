@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Lisää uusi osoite{% endblock %}
+{% block content %}
+<h1>Lisää uusi osoite</h1>
+<form action="/new-address" method="POST">
+    Nimi: <input type="text" name="full_name"> <br>
+    Katuosoite: <input type="text" name="street_address"> <br>
+    Postinumero: <input type="text" name="zip_code"> <br>
+    Postitoimipaikka: <input type="text" name="city"> <br>
+    Puhelinnumero: <input type="text" name="phone_number"> <br>
+    Sähköpostiosoite: <input type="email" name="email"> <br>
+    <input type="submit" value="Lisää uusi osoite">
+</form>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+{% endblock %}

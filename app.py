@@ -82,6 +82,14 @@ def is_employee():
 def is_logged_in():
     return session.get("username")
 
+def get_user_id():
+    username = is_logged_in()
+    if not username:
+        return None
+    query = "SELECT id FROM users WHERE username=:username"
+    user_id = db.session.execute(query, {"username": username}).fetchone()[0]
+    return user_id
+
 @app.route("/logout")
 def logout():
     del session["username"]
@@ -178,6 +186,76 @@ def edit_product(id):
             db.session.commit()
         flash("Tuotteen tiedot päivitetty!", category="success")
         return redirect(url_for("product", id=id))
+
+@app.route("/account")
+def account():
+    username = is_logged_in()
+    if not username:
+        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+        return redirect("/error")
+    query = "SELECT id FROM users WHERE username=:username"
+    query = "SELECT id, full_name, street_address, zip_code, city, phone_number, email FROM addresses WHERE user_id=:user_id AND visible=TRUE"
+    addresses = db.session.execute(query, {"user_id": get_user_id()}).fetchall()
+    return render_template("account.html", username=username, addresses=addresses)
+
+@app.route("/new-address", methods=["GET", "POST"])
+def new_address():
+    if request.method == "GET":
+        if not is_logged_in():
+            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+            return redirect("/error")
+        return render_template("new_address.html")
+    if request.method == "POST":
+        full_name = request.form["full_name"]
+        street_address = request.form["street_address"]
+        zip_code = request.form["zip_code"]
+        city = request.form["city"].upper()
+        phone_number = request.form["phone_number"]
+        email = request.form["email"]
+        query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, :city, :phone_number, :email)"
+        db.session.execute(query, {"user_id": get_user_id(), "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
+        db.session.commit()
+        flash("Uusi osoite lisätty!", category="success")
+        return redirect(url_for("account"))
+
+@app.route("/edit-address/<int:id>", methods=["GET", "POST"])
+def edit_address(id):
+    if request.method == "GET":
+        if not is_logged_in():
+            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+            return redirect("/error")
+        query = "SELECT full_name, street_address, zip_code, city, phone_number, email FROM addresses WHERE id=:id"
+        address = db.session.execute(query, {"id": id}).fetchone()
+        return render_template("edit_address.html", id=id, address=address)
+    if request.method == "POST":
+        full_name = request.form["full_name"]
+        street_address = request.form["street_address"]
+        zip_code = request.form["zip_code"]
+        city = request.form["city"].upper()
+        phone_number = request.form["phone_number"]
+        email = request.form["email"]
+        query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, :city, :phone_number, :email)"
+        db.session.execute(query, {"user_id": get_user_id(), "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
+        query = "UPDATE addresses SET visible=FALSE WHERE id=:id"
+        db.session.execute(query, {"id": id})
+        db.session.commit()
+        flash("Osoitetiedot päivitetty!", category="success")
+        return redirect(url_for("account"))
+
+@app.route("/delete-address/<int:id>")
+def delete_address(id):
+    if not is_logged_in():
+        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+        return redirect("/error")
+    query = "SELECT user_id FROM addresses WHERE id=:id"
+    address_owner_id = db.session.execute(query, {"id": id}).fetchone()[0]
+    if address_owner_id != get_user_id():
+        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+        return redirect("/error")
+    query = "UPDATE addresses SET visible=FALSE WHERE id=:id"
+    db.session.execute(query, {"id": id})
+    db.session.commit()
+    return redirect(url_for("account"))
 
 @app.route("/error")
 def error():

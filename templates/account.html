@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Omat asiakastiedot{% endblock %}
+{% block content %}
+<h1>Omat asiakastiedot</h1>
+
+<p>Hei, <b>{{ username }}</b>!</p>
+
+<h2>Osoitteet</h2>
+{% if addresses %}
+<table>
+    <tr>
+        <th>Nimi</th>
+        <th>Katuosoite</th>
+        <th>Postinumero ja -toimipaikka</th>
+        <th>Puhelinnumero</th>
+        <th>Sähköpostiosoite</th>
+        <th></th>
+    </tr>
+    {% for address in addresses %}
+    <tr>
+        <td>{{ address.full_name }}</a></td>
+        <td>{{ address.street_address }}</td>
+        <td>{{ address.zip_code }} {{ address.city }}</td>
+        <td>{{ address.phone_number }}</td>
+        <td>{{ address.email }}</td>
+        <td><button type="button" onclick="location.href = '/edit-address/{{ address.id }}'">Muokkaa</button></td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<a href="/new-address">Lisää uusi osoite</a>
+{% else %}
+<p>Sinulla ei ole osoitteita. Lisää uusi osoite <a href="/new-address">tästä</a>.</p>
+{% endif %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Muokkaa osoitetta{% endblock %}
+{% block content %}
+{% if not address %}
+<h1>Osoitetta ei löytynyt. Palaa edelliselle sivulle <a href="/account">tästä</a>.</h1>
+{% else %}
+<h1>Muokkaa osoitetta</h1>
+<form action="/edit-address/{{ id }}" method="POST">
+    <label for="full_name">Nimi:</label>
+    <input type="text" id="full_name" name="full_name" value="{{ address.full_name }}"><br>
+    <label for="street_address">Katuosoite:</label>
+    <input type="text" id="street_address" name="street_address" value="{{ address.street_address }}"><br>
+    <label for="zip_code">Postinumero:</label>
+    <input type="text" id="zip_code" name="zip_code" value="{{ address.zip_code }}"><br>
+    <label for="city">Postitoimipaikka:</label>
+    <input type="text" id="city" name="city" value="{{ address.city }}"><br>
+    <label for="phone_number">Puhelinnumero:</label>
+    <input type="text" id="phone_number" name="phone_number" value="{{ address.phone_number }}"><br>
+    <label for="email">Sähköpostiosoite:</label>
+    <input type="email" id="email" name="email" value="{{ address.email }}"><br>
+    <input type="submit" value="Päivitä tiedot"><br>
+    <button type="button" onclick="location.href = '/account/'">Peruuta</button>
+</form>
+<a href="/../delete-address/{{ id }}" onclick="return confirm('Haluatko varmasti poistaa osoitteen?')">Poista osoite</a>
+{% endif %}
+{% endblock %}
