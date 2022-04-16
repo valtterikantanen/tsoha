@@ -60,9 +60,12 @@ def is_logged_in():
 def get_user_id_by_username(username=None):
     if not username:
         username = session.get("username")
-    query = "SELECT id FROM users WHERE username=:username"
-    user_id = db.session.execute(query, {"username": username}).fetchone()[0]
-    return user_id
+    try:
+        query = "SELECT id FROM users WHERE username=:username"
+        user_id = db.session.execute(query, {"username": username}).fetchone()[0]
+        return user_id
+    except TypeError:
+        return False
 
 def get_username_by_user_id(user_id):
     query = "SELECT username FROM users WHERE id=:user_id"

@@ -2,6 +2,7 @@ from flask import flash, redirect, render_template, request, url_for
 
 from app import app
 import addresses
+import errors
 import products
 import users
 
@@ -41,15 +42,13 @@ def logout():
 def customers():
     customers = users.get_all_customers()
     if not customers and len(customers) != 0:
-        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-        return redirect("/error")
+        return errors.authentication_error()
     return render_template("customers.html", employee=users.is_employee(), customers=customers)
 
 @app.route("/make-admin/<int:id>")
 def make_admin(id):
     if not users.make_admin(id):
-        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-        return redirect("/error")
+        return errors.authentication_error()
     flash(f"Työntekijän oikeudet lisätty käyttäjälle {users.get_username_by_user_id(id)}!")
     return redirect(url_for("customers"))
 
@@ -58,8 +57,7 @@ def new_product():
     if request.method == "GET":
         if users.is_employee():
             return(render_template("new_product.html", employee=users.is_employee()))
-        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-        return redirect("/error")
+        return errors.authentication_error()
     if request.method == "POST":
         name = request.form["name"]
         description = request.form["description"]
@@ -73,24 +71,21 @@ def new_product():
 @app.route("/all-products", methods=["GET", "POST"])
 def all_products():
     if not users.is_logged_in():
-        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-        return redirect("/error")
+        return errors.authentication_error()
     order = request.form["order"] if request.method == "POST" else "alpha-asc"
     return render_template("all_products.html", products=products.all_products(order), id=users.get_user_id_by_username(), employee=users.is_employee())
 
 @app.route("/product/<int:id>")
 def product(id):
     if not users.is_logged_in():
-        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-        return redirect("/error")
+        return errors.authentication_error()
     return render_template("product.html", id=id, product=products.get_product_info(id), price_history=products.get_price_history(id), employee=users.is_employee())
 
 @app.route("/edit-product/<int:id>", methods=["GET", "POST"])
 def edit_product(id):
     if request.method == "GET":
         if not users.is_employee():
-            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-            return redirect("/error")
+            return errors.authentication_error()
         return render_template("edit_product.html", id=id, product=products.get_product_info(id), employee=users.is_employee())
     if request.method == "POST":
         name = request.form["name"]
@@ -106,8 +101,7 @@ def edit_product(id):
 def account(id):
     user_id = users.get_user_id_by_username()
     if user_id != id and not users.is_employee():
-        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-        return redirect("/error")
+        return errors.authentication_error()
     if users.is_employee(id):
         flash("Käyttäjäsivua ei ole olemassa.", category="error")
         return redirect("/error")
@@ -117,8 +111,7 @@ def account(id):
 def new_address(id):
     if request.method == "GET":
         if not users.is_logged_in():
-            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-            return redirect("/error")
+            return errors.authentication_error()
         return render_template("new_address.html", id=id, employee=users.is_employee())
     if request.method == "POST":
         full_name = request.form["full_name"]
@@ -135,8 +128,7 @@ def new_address(id):
 def edit_address(id):
     if request.method == "GET":
         if not users.is_logged_in():
-            flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-            return redirect("/error")
+            return errors.authentication_error()
         return render_template("edit_address.html", id=id, address=addresses.get_address(id), employee=users.is_employee())
     if request.method == "POST":
         full_name = request.form["full_name"]
@@ -154,15 +146,13 @@ def edit_address(id):
 @app.route("/delete-address/<int:id>")
 def delete_address(id):
     if not users.is_logged_in():
-        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-        return redirect("/error")
+        return errors.authentication_error()
     address_owner = addresses.get_address_owner(id)
     if not address_owner:
         flash("Osoitetta ei löytynyt", category="error")
         return redirect("/error") 
     if address_owner != users.get_user_id_by_username() and not users.is_employee():
-        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
-        return redirect("/error")
+        return errors.authentication_error()
     addresses.delete_address(id)
     return redirect(url_for("account", id=address_owner))
 
