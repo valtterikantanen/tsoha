@@ -2,6 +2,7 @@ from flask import flash, redirect, render_template, request, url_for
 
 from app import app
 from db import db
+import addresses
 import users
 
 @app.route("/", methods=["GET", "POST"])
@@ -152,9 +153,7 @@ def account(id):
     if users.is_employee(id):
         flash("Käyttäjäsivua ei ole olemassa.", category="error")
         return redirect("/error")
-    query = "SELECT A.id, A.full_name, A.street_address, A.zip_code, A.city, A.phone_number, A.email, A.visible FROM users U, addresses A WHERE U.id=A.user_id AND U.id=:id ORDER BY visible DESC"
-    addresses = db.session.execute(query, {"id": id}).fetchall()
-    return render_template("account.html", employee=users.is_employee(), id=id, username=users.get_username_by_user_id(id), addresses=addresses)
+    return render_template("account.html", employee=users.is_employee(), id=id, username=users.get_username_by_user_id(id), addresses=addresses.get_all_addresses(id))
 
 @app.route("/new-address/<int:id>", methods=["GET", "POST"])
 def new_address(id):
@@ -170,9 +169,7 @@ def new_address(id):
         city = request.form["city"].upper()
         phone_number = request.form["phone_number"]
         email = request.form["email"]
-        query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, :city, :phone_number, :email)"
-        db.session.execute(query, {"user_id": id, "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
-        db.session.commit()
+        addresses.new_address(id, full_name, street_address, zip_code, city, phone_number, email)
         flash("Uusi osoite lisätty!", category="success")
         return redirect(url_for("account", id=id))
 
@@ -182,9 +179,7 @@ def edit_address(id):
         if not users.is_logged_in():
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
-        query = "SELECT user_id AS address_owner, full_name, street_address, zip_code, city, phone_number, email FROM addresses WHERE id=:id"
-        address = db.session.execute(query, {"id": id}).fetchone()
-        return render_template("edit_address.html", id=id, address=address, employee=users.is_employee())
+        return render_template("edit_address.html", id=id, address=addresses.get_address(id), employee=users.is_employee())
     if request.method == "POST":
         full_name = request.form["full_name"]
         street_address = request.form["street_address"]
@@ -193,11 +188,8 @@ def edit_address(id):
         phone_number = request.form["phone_number"]
         email = request.form["email"]
         address_owner = request.form["address_owner"]
-        query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, :city, :phone_number, :email)"
-        db.session.execute(query, {"user_id": address_owner, "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
-        query = "UPDATE addresses SET visible=FALSE WHERE id=:id"
-        db.session.execute(query, {"id": id})
-        db.session.commit()
+        addresses.new_address(address_owner, full_name, street_address, zip_code, city, phone_number, email)
+        addresses.delete_address(id)
         flash("Osoitetiedot päivitetty!", category="success")
         return redirect(url_for("account", id=address_owner))
 
@@ -206,18 +198,14 @@ def delete_address(id):
     if not users.is_logged_in():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
-    try:
-        query = "SELECT user_id FROM addresses WHERE id=:id"
-        address_owner = db.session.execute(query, {"id": id}).fetchone()[0]
-    except TypeError:
+    address_owner = addresses.get_address_owner(id)
+    if not address_owner:
         flash("Osoitetta ei löytynyt", category="error")
         return redirect("/error") 
     if address_owner != users.get_user_id_by_username() and not users.is_employee():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
-    query = "UPDATE addresses SET visible=FALSE WHERE id=:id"
-    db.session.execute(query, {"id": id})
-    db.session.commit()
+    addresses.delete_address(id)
     return redirect(url_for("account", id=address_owner))
 
 @app.route("/error")
