@@ -3,6 +3,7 @@ from flask import flash, redirect, render_template, request, url_for
 from app import app
 from db import db
 import addresses
+import products
 import users
 
 @app.route("/", methods=["GET", "POST"])
@@ -61,62 +62,29 @@ def new_product():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     if request.method == "POST":
-        errors = False
         name = request.form["name"]
         description = request.form["description"]
-
-        if not name.strip():
-            flash("Syötä tuotteen nimi", category="error")
-            errors = True
-        try:
-            quantity = int(request.form["quantity"])
-        except ValueError:
-            flash("Syötä varastosaldo", category="error")
-            errors = True
-        try:
-            price = float(request.form["price"])
-        except ValueError:
-            flash("Syötä hinta", category="error")
-            errors = True
-        if errors:
+        quantity = request.form["quantity"]
+        price = request.form["price"]
+        product_id = products.add_product(name, description, quantity, price)
+        if not product_id:
             return render_template("new_product.html", employee=users.is_employee())
-        
-        query = "INSERT INTO products (name, description, quantity) VALUES (:name, :description, :quantity) RETURNING id"
-        result = db.session.execute(query, {"name": name, "description": description, "quantity": quantity})
-        product_id = result.fetchone()[0]
-        query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
-        db.session.execute(query, {"product_id": product_id, "price": price})
-        db.session.commit()
-        flash("Tuote lisätty!", category="success")
-        return redirect(url_for("product", id=id))
+        return redirect(url_for("product", id=product_id))
 
 @app.route("/all-products", methods=["GET", "POST"])
 def all_products():
-    options = {
-        "price-desc": "ORDER BY B.price DESC",
-        "price-asc": "ORDER BY B.price",
-        "alpha-asc": 'ORDER BY A.name COLLATE "fi_FI"',
-        "alpha-desc": 'ORDER BY A.name COLLATE "fi_FI" DESC'
-    }
     if not users.is_logged_in():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     order = request.form["order"] if request.method == "POST" else "alpha-asc"
-    query = f"SELECT A.id, A.name, A.description, B.price, A.quantity FROM products A, (SELECT DISTINCT ON (product_id) product_id, price FROM prices ORDER BY product_id, created_at DESC) B WHERE A.id=B.product_id AND A.visible=TRUE {options[order]}"
-    result = db.session.execute(query)
-    products = result.fetchall()
-    return render_template("all_products.html", products=products, id=users.get_user_id_by_username(), employee=users.is_employee())
+    return render_template("all_products.html", products=products.all_products(order), id=users.get_user_id_by_username(), employee=users.is_employee())
 
 @app.route("/product/<int:id>")
 def product(id):
     if not users.is_logged_in():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
-    query = "SELECT A.name, A.description, B.price, A.quantity FROM products A, prices B WHERE A.id=:id AND B.product_id=:id ORDER BY B.created_at DESC LIMIT 1"
-    product = db.session.execute(query, {"id": id}).fetchone()
-    query = "SELECT price, created_at FROM prices WHERE product_id=:id ORDER BY created_at DESC"
-    price_history = db.session.execute(query, {"id": id}).fetchall()
-    return render_template("product.html", id=id, product=product, employee=users.is_employee(), price_history=price_history)
+    return render_template("product.html", id=id, product=products.get_product_info(id), price_history=products.get_price_history(id), employee=users.is_employee())
 
 @app.route("/edit-product/<int:id>", methods=["GET", "POST"])
 def edit_product(id):
@@ -124,23 +92,13 @@ def edit_product(id):
         if not users.is_employee():
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
-        query = "SELECT A.name, A.description, B.price, A.quantity FROM products A, prices B WHERE A.id=:id AND B.product_id=:id ORDER BY B.created_at DESC LIMIT 1"
-        product = db.session.execute(query, {"id": id}).fetchone()
-        return render_template("edit_product.html", id=id, product=product, employee=users.is_employee())
+        return render_template("edit_product.html", id=id, product=products.get_product_info(id), employee=users.is_employee())
     if request.method == "POST":
         name = request.form["name"]
         quantity = request.form["quantity"]
         price = request.form["price"]
         description = request.form["description"]
-        query = "UPDATE products SET name=:name, quantity=:quantity, description=:description WHERE id=:id"
-        db.session.execute(query, {"name": name, "quantity": quantity, "description": description, "id": id})
-        db.session.commit()
-        query = "SELECT price FROM prices WHERE product_id=:id ORDER BY created_at DESC LIMIT 1"
-        current_price = db.session.execute(query, {"id": id}).fetchone()[0]
-        if float(current_price) != float(price):
-            query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
-            db.session.execute(query, {"product_id": id, "price": price})
-            db.session.commit()
+        products.edit_product(id, name, quantity, price, description)
         flash("Tuotteen tiedot päivitetty!", category="success")
         return redirect(url_for("product", id=id))
 
