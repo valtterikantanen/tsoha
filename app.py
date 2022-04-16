@@ -73,11 +73,15 @@ def is_employee():
     try:
         username = session["username"]
         query = "SELECT role FROM users WHERE username=:username"
-        result = db.session.execute(query, {"username": username})
-        role = result.fetchone()[0]
+        role = db.session.execute(query, {"username": username}).fetchone()[0]
         return role == "employee"
     except:
         return False
+
+def user_is_employee(user_id):
+    query = "SELECT role FROM users WHERE id=:id"
+    role = db.session.execute(query, {"id": user_id}).fetchone()[0]
+    return role == "employee"
 
 def is_logged_in():
     return session.get("username")
@@ -200,7 +204,7 @@ def account(id):
     if user_id != id and not is_employee():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
-    if user_id == id and is_employee():
+    if user_is_employee(id):
         flash("Käyttäjäsivua ei ole olemassa.", category="error")
         return redirect("/error")
     query = "SELECT A.id, A.full_name, A.street_address, A.zip_code, A.city, A.phone_number, A.email, A.visible FROM users U, addresses A WHERE U.id=A.user_id AND U.id=:id ORDER BY visible DESC"
@@ -279,6 +283,17 @@ def customers():
     query = "SELECT id, username FROM users WHERE role='customer' ORDER BY username"
     customers = db.session.execute(query).fetchall()
     return render_template("customers.html", employee=is_employee(), customers=customers)
+
+@app.route("/make-admin/<int:id>")
+def make_admin(id):
+    if not is_employee():
+        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+        return redirect("/error")
+    query = "UPDATE users SET role='employee' WHERE id=:id"
+    db.session.execute(query, {"id": id})
+    db.session.commit()
+    flash(f"Työntekijän oikeudet lisätty käyttäjälle {get_username_by_user_id(id)}!")
+    return redirect(url_for("customers"))
 
 @app.route("/error")
 def error():
