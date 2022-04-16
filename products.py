@@ -2,40 +2,9 @@ from flask import flash
 
 from db import db
 
-def add_product(name, description, quantity, price):
-    errors = False
-
-    if not name.strip():
-        flash("Syötä tuotteen nimi", category="error")
-        errors = True
-
-    if len(name) > 150:
-        flash("Tuotteen nimi voi olla enintään 150 merkkiä pitkä", category="error")
-        errors = True
-
-    if len(description) > 1000:
-        flash("Tuotteen kuvaus voi olla enintään 1 000 merkkiä pitkä", category="error")
-        errors = True
-
-    try:
-        quantity = int(quantity)
-        if quantity < 0:
-            flash("Tuotteen saldo ei voi olla negatiivinen", category="error")
-    except ValueError:
-        flash("Syötä varastosaldo", category="error")
-        errors = True
-
-    try:
-        price = float(price)
-        if not 0 <= price <= 999_999.99:
-            flash("Tuotteen hinnan on oltava välillä 0,00–999 999,99 €", category="error")
-    except ValueError:
-        flash("Syötä hinta", category="error")
-        errors = True
-
-    if errors:
+def add_product(name, quantity, price, description):
+    if validate_product_data(name, quantity, price, description):
         return False
-    
     query = "INSERT INTO products (name, description, quantity) VALUES (:name, :description, :quantity) RETURNING id"
     product_id = db.session.execute(query, {"name": name, "description": description, "quantity": quantity}).fetchone()[0]
     query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
@@ -66,6 +35,8 @@ def get_price_history(id):
     return price_history
 
 def edit_product(id, name, quantity, price, description):
+    if validate_product_data(name, quantity, price, description):
+        return False
     query = "UPDATE products SET name=:name, quantity=:quantity, description=:description WHERE id=:id"
     db.session.execute(query, {"name": name, "quantity": quantity, "description": description, "id": id})
     db.session.commit()
@@ -75,3 +46,39 @@ def edit_product(id, name, quantity, price, description):
         query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
         db.session.execute(query, {"product_id": id, "price": price})
         db.session.commit()
+    return True
+
+def validate_product_data(name, quantity, price, description):
+    errors = False
+
+    if not name.strip():
+        flash("Syötä tuotteen nimi", category="error")
+        errors = True
+
+    if len(name) > 150:
+        flash("Tuotteen nimi voi olla enintään 150 merkkiä pitkä", category="error")
+        errors = True
+
+    if len(description) > 1000:
+        flash("Tuotteen kuvaus voi olla enintään 1 000 merkkiä pitkä", category="error")
+        errors = True
+
+    try:
+        quantity = int(quantity)
+        if quantity < 0:
+            flash("Tuotteen saldo ei voi olla negatiivinen", category="error")
+    except ValueError:
+        flash("Syötä varastosaldo", category="error")
+        print(quantity)
+        errors = True
+
+    try:
+        price = float(price)
+        if not 0 <= price <= 999_999.99:
+            flash("Tuotteen hinnan on oltava välillä 0,00–999 999,99 €", category="error")
+    except ValueError:
+        flash("Syötä hinta", category="error")
+        print(price)
+        errors = True
+
+    return errors

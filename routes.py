@@ -1,7 +1,6 @@
 from flask import flash, redirect, render_template, request, url_for
 
 from app import app
-from db import db
 import addresses
 import products
 import users
@@ -66,7 +65,7 @@ def new_product():
         description = request.form["description"]
         quantity = request.form["quantity"]
         price = request.form["price"]
-        product_id = products.add_product(name, description, quantity, price)
+        product_id = products.add_product(name, quantity, price, description)
         if not product_id:
             return render_template("new_product.html", employee=users.is_employee())
         return redirect(url_for("product", id=product_id))
@@ -98,9 +97,10 @@ def edit_product(id):
         quantity = request.form["quantity"]
         price = request.form["price"]
         description = request.form["description"]
-        products.edit_product(id, name, quantity, price, description)
-        flash("Tuotteen tiedot päivitetty!", category="success")
-        return redirect(url_for("product", id=id))
+        if products.edit_product(id, name, quantity, price, description):
+            flash("Tuotteen tiedot päivitetty!", category="success")
+            return redirect(url_for("product", id=id))
+        return render_template("edit_product.html", id=id, product=products.get_product_info(id), employee=users.is_employee())
 
 @app.route("/account/<int:id>")
 def account(id):
