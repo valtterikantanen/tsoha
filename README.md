@@ -8,10 +8,10 @@ Sovellus on laadittu Helsingin yliopiston kevään 2022 kurssille [Aineopintojen
 
 Sovellusta voi käyttää [Herokussa](https://vast-coast-44980.herokuapp.com/). Kirjautumiseen voi käyttää seuraavia tunnuksia:
 
-|    Rooli   | Käyttäjätunnus |  Salasana  |
-| :--------- | :------------- | :--------- |
-| asiakas    | `customer`     | `qXd9Y8ok` |
-| työntekijä | `admin`        | `op33RfQ4` |
+|    Rooli    | Käyttäjätunnus |  Salasana  |
+| :---------- | :------------- | :--------- |
+| asiakas     | `customer`     | `qXd9Y8ok` |
+| työntekijä  | `admin`        | `op33RfQ4` |
 
 ## Ominaisuudet
 
@@ -21,16 +21,16 @@ Sovellusta voi käyttää [Herokussa](https://vast-coast-44980.herokuapp.com/). 
 * Asiakkaat voivat luoda itselleen uuden tunnuksen. 
 * Asiakkaat voivat tarkastella tuotteiden tietoja.
 * Työntekijät voivat lisätä uusia tuotteita ja muokata olemassaolevien tuotteiden tietoja (esim. tuotekuvaukset, hinnat, varastosaldot).
+* Asiakkaat voivat tarkastella ja päivittää omia yhteystietojaan.
+* Työntekijät voivat lisätä työntekijän oikeuksia muille käyttäjille.
 
 ### Vielä puuttuvat
 
 * Asiakkaat voivat tehdä uusia tilauksia, joita työntekijät voivat selailla ja käsitellä.
-* Asiakkaat voivat tarkastella ja päivittää omia yhteystietojaan.
 * Asiakkaat voivat katsella aiempia tilauksiaan ja laskujaan.
 * Työntekijät voivat lähettää uusia laskuja sekä tarkastella kaikkia lähetettyjä laskuja. Työntekijät pystyvät myös lähettämään maksumuistutuksia ja merkitsemään laskuja maksetuiksi.
 * Työntekijät voivat tarkastella toteutuneita myyntejä esimerkiksi tuotteen, ajankohdan tai asiakkaan mukaan.
 * Järjestelmä huolehtii automaattisesti siitä, että tuotteiden varastosaldot ovat ajan tasalla sekä siitä, että tuotteita ei voi tilata enempää kuin niitä on varastossa.
-* Työntekijät voivat lisätä työntekijän oikeuksia muille käyttäjille.
 
 ## Työn edistyminen
 
