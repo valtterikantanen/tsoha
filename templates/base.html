@@ -14,6 +14,10 @@
                 <li><a href="{{ url_for("all_products") }}">Tuotteet</a></li>
                 {% if employee %}
                 <li><a href="{{ url_for("new_product") }}">Lisää tuote</a></li>
+                <li><a href="{{ url_for("customers") }}">Asiakkaat</a></li>
+                {% endif %}
+                {% if not employee %}
+                <li><a href="{{ url_for("account", id=id) }}">Omat asiakastiedot</a></li>
                 {% endif %}
                 <li><a href="{{ url_for("logout") }}">Kirjaudu ulos</a></li>
             </ul>

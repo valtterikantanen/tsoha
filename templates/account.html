@@ -1,11 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Omat asiakastiedot{% endblock %}
+{% block title %}
+{% if employee %}
+Käyttäjätiedot
+{% else %}
+Omat asiakastiedot
+{% endif %}
+{% endblock %}
 {% block content %}
+{% if employee %}
+<h1>Käyttäjätiedot</h1>
+{% else %}
 <h1>Omat asiakastiedot</h1>
-
-<p>Hei, <b>{{ username }}</b>!</p>
-
+{% endif %}
+<p>Käyttäjänimi: {{ username }}</p>
 <h2>Osoitteet</h2>
 {% if addresses %}
 <table>
@@ -15,6 +23,7 @@
         <th>Postinumero ja -toimipaikka</th>
         <th>Puhelinnumero</th>
         <th>Sähköpostiosoite</th>
+        {% if employee %}<th>Näkyvissä</th>{% endif %}
         <th></th>
     </tr>
     {% for address in addresses %}
@@ -24,14 +33,19 @@
         <td>{{ address.zip_code }} {{ address.city }}</td>
         <td>{{ address.phone_number }}</td>
         <td>{{ address.email }}</td>
-        <td><button type="button" onclick="location.href = '/edit-address/{{ address.id }}'">Muokkaa</button></td>
+        {% if employee %}<td>{% if address.visible %}&#x2714{% else %}&#x2715{% endif %}</td>{% endif %}
+        {% if address.visible %}<td><button type="button" onclick="location.href = '/edit-address/{{ address.id }}'">Muokkaa</button></td>{% endif %}
     </tr>
     {% endfor %}
 </table>
 <br>
-<a href="/new-address">Lisää uusi osoite</a>
+<a href="/new-address/{{ id }}">Lisää uusi osoite</a>
 {% else %}
-<p>Sinulla ei ole osoitteita. Lisää uusi osoite <a href="/new-address">tästä</a>.</p>
+{% if employee %}
+<p>Käyttäjä ei ole lisännyt yhtään osoitetta.</p>
+{% else %}
+<p>Sinulla ei ole osoitteita. Lisää uusi osoite <a href="/new-address/{{ id }}">tästä</a>.</p>
+{% endif %}
 {% endif %}
 
 {% with messages = get_flashed_messages() %}

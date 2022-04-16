@@ -18,7 +18,7 @@ db = SQLAlchemy(app)
 def index():
     if request.method == "GET":
         if is_logged_in():
-            return render_template("index.html", employee=is_employee())
+            return render_template("index.html", id=get_current_users_id(), employee=is_employee())
         return render_template("login.html")
     if request.method == "POST":
         username = request.form["username"]
@@ -31,7 +31,7 @@ def index():
             return render_template("login.html")
         if check_password_hash(user.password, password):
             session["username"] = username
-            return render_template("index.html", employee=is_employee())
+            return render_template("index.html", id=get_current_users_id(), employee=is_employee())
         flash("Väärä salasana", category="error")
         return render_template("login.html")
         
@@ -82,13 +82,21 @@ def is_employee():
 def is_logged_in():
     return session.get("username")
 
-def get_user_id():
+def get_current_users_id():
     username = is_logged_in()
     if not username:
         return None
+    return get_user_id_by_username(username)
+
+def get_user_id_by_username(username):
     query = "SELECT id FROM users WHERE username=:username"
     user_id = db.session.execute(query, {"username": username}).fetchone()[0]
     return user_id
+
+def get_username_by_user_id(user_id):
+    query = "SELECT username FROM users WHERE id=:user_id"
+    username = db.session.execute(query, {"user_id": user_id}).fetchone()[0]
+    return username
 
 @app.route("/logout")
 def logout():
@@ -147,7 +155,7 @@ def all_products():
     query = f"SELECT A.id, A.name, A.description, B.price, A.quantity FROM products A, (SELECT DISTINCT ON (product_id) product_id, price FROM prices ORDER BY product_id, created_at DESC) B WHERE A.id=B.product_id AND A.visible=TRUE {options[order]}"
     result = db.session.execute(query)
     products = result.fetchall()
-    return render_template("all_products.html", products=products, employee=is_employee())
+    return render_template("all_products.html", products=products, id=get_current_users_id(), employee=is_employee())
 
 @app.route("/product/<int:id>")
 def product(id):
@@ -167,9 +175,8 @@ def edit_product(id):
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
         query = "SELECT A.name, A.description, B.price, A.quantity FROM products A, prices B WHERE A.id=:id AND B.product_id=:id ORDER BY B.created_at DESC LIMIT 1"
-        result = db.session.execute(query, {"id": id})
-        product = result.fetchone()
-        return render_template("edit_product.html", id=id, product=product)
+        product = db.session.execute(query, {"id": id}).fetchone()
+        return render_template("edit_product.html", id=id, product=product, employee=is_employee())
     if request.method == "POST":
         name = request.form["name"]
         quantity = request.form["quantity"]
@@ -180,31 +187,33 @@ def edit_product(id):
         db.session.commit()
         query = "SELECT price FROM prices WHERE product_id=:id ORDER BY created_at DESC LIMIT 1"
         current_price = db.session.execute(query, {"id": id}).fetchone()[0]
-        if current_price != price:
+        if float(current_price) != float(price):
             query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
             db.session.execute(query, {"product_id": id, "price": price})
             db.session.commit()
         flash("Tuotteen tiedot päivitetty!", category="success")
         return redirect(url_for("product", id=id))
 
-@app.route("/account")
-def account():
-    username = is_logged_in()
-    if not username:
+@app.route("/account/<int:id>")
+def account(id):
+    user_id = get_current_users_id()
+    if user_id != id and not is_employee():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
-    query = "SELECT id FROM users WHERE username=:username"
-    query = "SELECT id, full_name, street_address, zip_code, city, phone_number, email FROM addresses WHERE user_id=:user_id AND visible=TRUE"
-    addresses = db.session.execute(query, {"user_id": get_user_id()}).fetchall()
-    return render_template("account.html", username=username, addresses=addresses)
+    if user_id == id and is_employee():
+        flash("Käyttäjäsivua ei ole olemassa.", category="error")
+        return redirect("/error")
+    query = "SELECT A.id, A.full_name, A.street_address, A.zip_code, A.city, A.phone_number, A.email, A.visible FROM users U, addresses A WHERE U.id=A.user_id AND U.id=:id ORDER BY visible DESC"
+    addresses = db.session.execute(query, {"id": id}).fetchall()
+    return render_template("account.html", employee=is_employee(), id=id, username=get_username_by_user_id(id), addresses=addresses)
 
-@app.route("/new-address", methods=["GET", "POST"])
-def new_address():
+@app.route("/new-address/<int:id>", methods=["GET", "POST"])
+def new_address(id):
     if request.method == "GET":
         if not is_logged_in():
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
-        return render_template("new_address.html")
+        return render_template("new_address.html", id=id, employee=is_employee())
     if request.method == "POST":
         full_name = request.form["full_name"]
         street_address = request.form["street_address"]
@@ -213,10 +222,10 @@ def new_address():
         phone_number = request.form["phone_number"]
         email = request.form["email"]
         query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, :city, :phone_number, :email)"
-        db.session.execute(query, {"user_id": get_user_id(), "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
+        db.session.execute(query, {"user_id": id, "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
         db.session.commit()
         flash("Uusi osoite lisätty!", category="success")
-        return redirect(url_for("account"))
+        return redirect(url_for("account", id=id))
 
 @app.route("/edit-address/<int:id>", methods=["GET", "POST"])
 def edit_address(id):
@@ -224,9 +233,9 @@ def edit_address(id):
         if not is_logged_in():
             flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
             return redirect("/error")
-        query = "SELECT full_name, street_address, zip_code, city, phone_number, email FROM addresses WHERE id=:id"
+        query = "SELECT user_id AS address_owner, full_name, street_address, zip_code, city, phone_number, email FROM addresses WHERE id=:id"
         address = db.session.execute(query, {"id": id}).fetchone()
-        return render_template("edit_address.html", id=id, address=address)
+        return render_template("edit_address.html", id=id, address=address, employee=is_employee())
     if request.method == "POST":
         full_name = request.form["full_name"]
         street_address = request.form["street_address"]
@@ -234,28 +243,42 @@ def edit_address(id):
         city = request.form["city"].upper()
         phone_number = request.form["phone_number"]
         email = request.form["email"]
+        address_owner = request.form["address_owner"]
         query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, :city, :phone_number, :email)"
-        db.session.execute(query, {"user_id": get_user_id(), "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
+        db.session.execute(query, {"user_id": address_owner, "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
         query = "UPDATE addresses SET visible=FALSE WHERE id=:id"
         db.session.execute(query, {"id": id})
         db.session.commit()
         flash("Osoitetiedot päivitetty!", category="success")
-        return redirect(url_for("account"))
+        return redirect(url_for("account", id=address_owner))
 
 @app.route("/delete-address/<int:id>")
 def delete_address(id):
     if not is_logged_in():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
-    query = "SELECT user_id FROM addresses WHERE id=:id"
-    address_owner_id = db.session.execute(query, {"id": id}).fetchone()[0]
-    if address_owner_id != get_user_id():
+    try:
+        query = "SELECT user_id FROM addresses WHERE id=:id"
+        address_owner = db.session.execute(query, {"id": id}).fetchone()[0]
+    except TypeError:
+        flash("Osoitetta ei löytynyt", category="error")
+        return redirect("/error") 
+    if address_owner != get_current_users_id() and not is_employee():
         flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
         return redirect("/error")
     query = "UPDATE addresses SET visible=FALSE WHERE id=:id"
     db.session.execute(query, {"id": id})
     db.session.commit()
-    return redirect(url_for("account"))
+    return redirect(url_for("account", id=address_owner))
+
+@app.route("/customers")
+def customers():
+    if not is_employee():
+        flash("Sinulla ei ole oikeutta nähdä sivua", category="error")
+        return redirect("/error")
+    query = "SELECT id, username FROM users WHERE role='customer' ORDER BY username"
+    customers = db.session.execute(query).fetchall()
+    return render_template("customers.html", employee=is_employee(), customers=customers)
 
 @app.route("/error")
 def error():

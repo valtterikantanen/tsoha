@@ -18,8 +18,10 @@
     <input type="text" id="phone_number" name="phone_number" value="{{ address.phone_number }}"><br>
     <label for="email">Sähköpostiosoite:</label>
     <input type="email" id="email" name="email" value="{{ address.email }}"><br>
+    <label for="address_owner"></label>
+    <input type="hidden" id="address_owner" name="address_owner" value="{{ address.address_owner }}">
     <input type="submit" value="Päivitä tiedot"><br>
-    <button type="button" onclick="location.href = '/account/'">Peruuta</button>
+    <button type="button" onclick="location.href = '/account/{{ address.address_owner }}'">Peruuta</button>
 </form>
 <a href="/../delete-address/{{ id }}" onclick="return confirm('Haluatko varmasti poistaa osoitteen?')">Poista osoite</a>
 {% endif %}
