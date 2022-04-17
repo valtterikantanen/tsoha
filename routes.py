@@ -103,13 +103,15 @@ def account(id):
     if user_id != id and not users.is_employee():
         return errors.authentication_error()
     if users.is_employee(id):
-        flash("Käyttäjäsivua ei ole olemassa.", category="error")
-        return redirect("/error")
+        return errors.page_not_found()
     return render_template("account.html", employee=users.is_employee(), id=id, username=users.get_username_by_user_id(id), addresses=addresses.get_all_addresses(id))
 
 @app.route("/new-address/<int:id>", methods=["GET", "POST"])
 def new_address(id):
     if request.method == "GET":
+        username = users.get_username_by_user_id(id)
+        if not username:
+            return errors.page_not_found()
         if id != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
         return render_template("new_address.html", id=id, employee=users.is_employee())
