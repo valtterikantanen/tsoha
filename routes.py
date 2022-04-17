@@ -73,7 +73,7 @@ def all_products():
     if not users.is_logged_in():
         return errors.authentication_error()
     order = request.form["order"] if request.method == "POST" else "alpha-asc"
-    return render_template("all_products.html", products=products.all_products(order), id=users.get_user_id_by_username(), employee=users.is_employee())
+    return render_template("all_products.html", products=products.all_products(order), id=users.get_user_id_by_username(), employee=users.is_employee(), order=order)
 
 @app.route("/product/<int:id>")
 def product(id):
