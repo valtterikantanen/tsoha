@@ -110,7 +110,7 @@ def account(id):
 @app.route("/new-address/<int:id>", methods=["GET", "POST"])
 def new_address(id):
     if request.method == "GET":
-        if not users.is_logged_in():
+        if id != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
         return render_template("new_address.html", id=id, employee=users.is_employee())
     if request.method == "POST":
@@ -127,7 +127,7 @@ def new_address(id):
 @app.route("/edit-address/<int:id>", methods=["GET", "POST"])
 def edit_address(id):
     if request.method == "GET":
-        if not users.is_logged_in():
+        if addresses.get_address_owner(id) != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
         return render_template("edit_address.html", id=id, address=addresses.get_address(id), employee=users.is_employee())
     if request.method == "POST":
@@ -145,13 +145,8 @@ def edit_address(id):
 
 @app.route("/delete-address/<int:id>")
 def delete_address(id):
-    if not users.is_logged_in():
-        return errors.authentication_error()
     address_owner = addresses.get_address_owner(id)
-    if not address_owner:
-        flash("Osoitetta ei löytynyt", category="error")
-        return redirect("/error") 
-    if address_owner != users.get_user_id_by_username() and not users.is_employee():
+    if not address_owner or (address_owner != users.get_user_id_by_username() and not users.is_employee()):
         return errors.authentication_error()
     addresses.delete_address(id)
     return redirect(url_for("account", id=address_owner))
