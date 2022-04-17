@@ -68,9 +68,12 @@ def get_user_id_by_username(username=None):
         return False
 
 def get_username_by_user_id(user_id):
-    query = "SELECT username FROM users WHERE id=:user_id"
-    username = db.session.execute(query, {"user_id": user_id}).fetchone()[0]
-    return username
+    try:
+        query = "SELECT username FROM users WHERE id=:user_id"
+        username = db.session.execute(query, {"user_id": user_id}).fetchone()[0]
+        return username
+    except TypeError:
+        return False
 
 def get_all_customers():
     if not is_employee():
