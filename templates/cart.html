@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Ostoskori{% endblock %}
+{% block content %}
+<h1>Ostoskori</h1>
+
+{% if products %}
+<table>
+    <tr>
+        <th>Tuote</th>
+        <th>Määrä</th>
+        <th>Kpl-hinta</th>
+        <th>Yhteensä</th>
+    </tr>
+    {% for product in products %}
+    <tr>
+        <td><a href="product/{{ product.id }}">{{ product.name }}</a></td>
+        <td>
+            <form action="/update-quantity" METHOD="POST">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="order_id" value="{{ product.order_id }}">
+            <select name="quantity" onchange="this.form.submit()">
+                {% for i in range(product.maximum + 1) %}
+                <option value="{{ i }}" {% if i==product.quantity %} selected {% endif %}>{{ i }}</option>
+                {% endfor %}
+            </select>
+            </form>
+        </td>
+        <td>{{ ("%.2f" % product.price).replace(".", ",") }} €</td>
+        <td>{{ ("%.2f" % product.subtotal).replace(".", ",") }} €</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<b>Yhteensä: {{ ("%.2f" % total_sum).replace(".", ",") }} €</b>
+{% else %}
+<p>Ostoskorissasi ei ole yhtään tuotetta.</p>
+{% endif %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% endblock %}

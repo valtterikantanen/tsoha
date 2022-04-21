@@ -20,7 +20,7 @@ CREATE TABLE prices (
 );
 
 CREATE TABLE addresses (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users,
     full_name TEXT NOT NULL,
     street_address TEXT NOT NULL,
@@ -29,4 +29,18 @@ CREATE TABLE addresses (
     phone_number TEXT NOT NULL,
     email TEXT NOT NULL,
     visible BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users,
+    address INTEGER REFERENCES addresses,
+    status TEXT DEFAULT 'open',
+    sent_at TIMESTAMP
+);
+
+CREATE TABLE order_items (
+    order_id INTEGER REFERENCES orders,
+    product_id INTEGER REFERENCES products,
+    quantity INTEGER,
 );

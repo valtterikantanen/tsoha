@@ -3,6 +3,7 @@ from flask import flash, redirect, render_template, request, url_for
 from app import app
 import addresses
 import errors
+import orders
 import products
 import users
 
@@ -158,3 +159,20 @@ def delete_address(id):
 @app.route("/error")
 def error():
     return render_template("error.html")
+
+@app.route("/cart", methods=["GET", "POST"])
+def cart():
+    order_id = orders.get_open_order_id(users.get_user_id_by_username())
+    if not order_id:
+        return render_template("cart.html", id=users.get_user_id_by_username(), employee=users.is_employee())
+    products = orders.get_order_items(order_id)
+    total_sum = orders.get_total_sum(order_id)
+    return render_template("cart.html", id=users.get_user_id_by_username(), employee=users.is_employee(), products=products, total_sum=total_sum)
+
+@app.route("/update-quantity", methods=["POST"])
+def update_quantity():
+    product_id = request.form["product_id"]
+    quantity = request.form["quantity"]
+    order_id = request.form["order_id"]
+    orders.update_item_quantity(product_id, quantity, order_id)
+    return redirect(url_for("cart"))

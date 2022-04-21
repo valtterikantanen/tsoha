@@ -18,6 +18,7 @@
                 {% endif %}
                 {% if not employee %}
                 <li><a href="{{ url_for("account", id=id) }}">Omat asiakastiedot</a></li>
+                <li><a href="{{ url_for("cart") }}">Ostoskori</a></li>
                 {% endif %}
                 <li><a href="{{ url_for("logout") }}">Kirjaudu ulos</a></li>
             </ul>
