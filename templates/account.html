@@ -27,6 +27,7 @@ Omat asiakastiedot
         <th></th>
     </tr>
     {% for address in addresses %}
+    {% if address.visible or employee %}
     <tr>
         <td>{{ address.full_name }}</a></td>
         <td>{{ address.street_address }}</td>
@@ -36,6 +37,7 @@ Omat asiakastiedot
         {% if employee %}<td>{% if address.visible %}&#x2714{% else %}&#x2715{% endif %}</td>{% endif %}
         {% if address.visible %}<td><button type="button" onclick="location.href = '/edit-address/{{ address.id }}'">Muokkaa</button></td>{% endif %}
     </tr>
+    {% endif %}
     {% endfor %}
 </table>
 <p><a href="/new-address/{{ id }}">Lisää uusi osoite</a></p>
