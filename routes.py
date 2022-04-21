@@ -122,9 +122,10 @@ def new_address(id):
         city = request.form["city"].upper()
         phone_number = request.form["phone_number"]
         email = request.form["email"]
-        addresses.new_address(id, full_name, street_address, zip_code, city, phone_number, email)
-        flash("Uusi osoite lisätty!", category="success")
-        return redirect(url_for("account", id=id))
+        if addresses.new_address(id, full_name, street_address, zip_code, city, phone_number, email):
+            flash("Uusi osoite lisätty!", category="success")
+            return redirect(url_for("account", id=id))
+        return render_template("new_address.html", id=id, employee=users.is_employee(), full_name=full_name, street_address=street_address, zip_code=zip_code, city=city, phone_number=phone_number, email=email)
 
 @app.route("/edit-address/<int:id>", methods=["GET", "POST"])
 def edit_address(id):
@@ -140,7 +141,8 @@ def edit_address(id):
         phone_number = request.form["phone_number"]
         email = request.form["email"]
         address_owner = request.form["address_owner"]
-        addresses.new_address(address_owner, full_name, street_address, zip_code, city, phone_number, email)
+        if not addresses.new_address(address_owner, full_name, street_address, zip_code, city, phone_number, email):
+            return render_template("new_address.html", id=id, employee=users.is_employee())
         addresses.delete_address(id)
         flash("Osoitetiedot päivitetty!", category="success")
         return redirect(url_for("account", id=address_owner))

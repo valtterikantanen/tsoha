@@ -3,12 +3,12 @@
 {% block content %}
 <h1>Lisää uusi osoite</h1>
 <form action="/new-address/{{ id }}" method="POST">
-    Nimi: <input type="text" name="full_name"> <br>
-    Katuosoite: <input type="text" name="street_address"> <br>
-    Postinumero: <input type="text" name="zip_code"> <br>
-    Postitoimipaikka: <input type="text" name="city"> <br>
-    Puhelinnumero: <input type="text" name="phone_number"> <br>
-    Sähköpostiosoite: <input type="email" name="email"> <br>
+    Nimi: <input type="text" name="full_name" value="{{ full_name }}" required> <br>
+    Katuosoite: <input type="text" name="street_address" value="{{ street_address }}" required> <br>
+    Postinumero: <input type="text" name="zip_code" value="{{ zip_code }}" required> <br>
+    Postitoimipaikka: <input type="text" name="city" value="{{ city }}" required> <br>
+    Puhelinnumero: <input type="text" name="phone_number" value="{{ phone_number }}" required> <br>
+    Sähköpostiosoite: <input type="email" name="email" value="{{ email }}" required> <br>
     <input type="submit" value="Lisää uusi osoite">
 </form>
 {% with messages = get_flashed_messages() %}

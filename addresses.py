@@ -1,3 +1,7 @@
+import re
+
+from flask import flash
+
 from db import db
 
 def get_all_addresses(id):
@@ -6,9 +10,14 @@ def get_all_addresses(id):
     return addresses
 
 def new_address(id, full_name, street_address, zip_code, city, phone_number, email):
+    errors = validate_user_data(full_name, street_address, zip_code, city, phone_number.replace(" ", ""), email)
+    if errors:
+        return False
+
     query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, :city, :phone_number, :email)"
-    db.session.execute(query, {"user_id": id, "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number, "email": email})
+    db.session.execute(query, {"user_id": id, "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number.replace(" ", ""), "email": email})
     db.session.commit()
+    return True
 
 def get_address(id):
     query = "SELECT user_id AS address_owner, full_name, street_address, zip_code, city, phone_number, email FROM addresses WHERE id=:id"
@@ -27,3 +36,32 @@ def delete_address(id):
     query = "UPDATE addresses SET visible=FALSE WHERE id=:id"
     db.session.execute(query, {"id": id})
     db.session.commit()
+
+def validate_user_data(full_name, street_address, zip_code, city, phone_number, email):
+    errors = False
+
+    if not 4 < len(full_name) < 101:
+        flash("Nimen tulee olla 5–100 merkkiä pitkä", category="error")
+        errors = True
+
+    if not 4 < len(street_address) < 101:
+        flash("Osoitteen tulee olla 5–100 merkkiä pitkä", category="error")
+        errors = True
+
+    if not re.match("^\d{5}$", zip_code):
+        flash("Virheellinen postinumero", category="error")
+        errors = True
+
+    if not 1 < len(city) < 51:
+        flash("Postitoimipaikan tulee olla 2–50 merkkiä pitkä", category="error")
+        errors = True
+
+    if not re.match("^(\+?)\d{7,15}$", phone_number):
+        flash("Virheellinen puhelinnumero", category="error")
+        errors = True
+
+    if not re.match("^\S+@\S+\.\S+$", email) or not (4 < len(email) < 320):
+        flash("Virheellinen sähköpostiosoite", category="error")
+        errors = True
+
+    return errors
