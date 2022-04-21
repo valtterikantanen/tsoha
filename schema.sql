@@ -42,5 +42,5 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
     order_id INTEGER REFERENCES orders,
     product_id INTEGER REFERENCES products,
-    quantity INTEGER,
+    quantity INTEGER
 );
