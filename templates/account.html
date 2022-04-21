@@ -38,12 +38,12 @@ Omat asiakastiedot
     </tr>
     {% endfor %}
 </table>
-<br>
-<a href="/new-address/{{ id }}">Lisää uusi osoite</a>
-{% else %}
+<p><a href="/new-address/{{ id }}">Lisää uusi osoite</a></p>
+{% elif not addresses %}
 {% if employee %}
 <p>Käyttäjä ei ole lisännyt yhtään osoitetta.</p>
-{% else %}
+<p><a href="/new-address/{{ id }}">Lisää uusi osoite</a></p>
+{% elif not employee %}
 <p>Sinulla ei ole osoitteita. Lisää uusi osoite <a href="/new-address/{{ id }}">tästä</a>.</p>
 {% endif %}
 {% endif %}
