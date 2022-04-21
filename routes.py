@@ -11,14 +11,14 @@ import users
 def index():
     if request.method == "GET":
         if users.is_logged_in():
-            return render_template("index.html", id=users.get_user_id_by_username(), employee=users.is_employee())
+            return render_template("index.html", user_id=users.get_user_id_by_username(), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
         return render_template("login.html")
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
         if not users.login(username, password):
             return render_template("login.html")
-        return render_template("index.html", id=users.get_user_id_by_username(), employee=users.is_employee())
+        return render_template("index.html", user_id=users.get_user_id_by_username(), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
         
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -74,13 +74,13 @@ def all_products():
     if not users.is_logged_in():
         return errors.authentication_error()
     order = request.form["order"] if request.method == "POST" else "alpha-asc"
-    return render_template("all_products.html", products=products.all_products(order), id=users.get_user_id_by_username(), employee=users.is_employee(), order=order)
+    return render_template("all_products.html", products=products.all_products(order), user_id=users.get_user_id_by_username(), employee=users.is_employee(), order=order, number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
 
 @app.route("/product/<int:id>")
 def product(id):
     if not users.is_logged_in():
         return errors.authentication_error()
-    return render_template("product.html", id=id, product=products.get_product_info(id), price_history=products.get_price_history(id), employee=users.is_employee())
+    return render_template("product.html", id=id, user_id=users.get_user_id_by_username(), product=products.get_product_info(id), price_history=products.get_price_history(id), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
 
 @app.route("/edit-product/<int:id>", methods=["GET", "POST"])
 def edit_product(id):
@@ -105,7 +105,7 @@ def account(id):
         return errors.authentication_error()
     if users.is_employee(id):
         return errors.page_not_found()
-    return render_template("account.html", employee=users.is_employee(), id=id, username=users.get_username_by_user_id(id), addresses=addresses.get_all_addresses(id))
+    return render_template("account.html", employee=users.is_employee(), user_id=id, username=users.get_username_by_user_id(id), addresses=addresses.get_all_addresses(id), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
 
 @app.route("/new-address/<int:id>", methods=["GET", "POST"])
 def new_address(id):
@@ -115,7 +115,7 @@ def new_address(id):
             return errors.page_not_found()
         if id != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
-        return render_template("new_address.html", id=id, employee=users.is_employee())
+        return render_template("new_address.html", user_id=id, employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
     if request.method == "POST":
         full_name = request.form["full_name"]
         street_address = request.form["street_address"]
@@ -133,7 +133,7 @@ def edit_address(id):
     if request.method == "GET":
         if addresses.get_address_owner(id) != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
-        return render_template("edit_address.html", id=id, address=addresses.get_address(id), employee=users.is_employee())
+        return render_template("edit_address.html", user_id=id, address=addresses.get_address(id), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
     if request.method == "POST":
         full_name = request.form["full_name"]
         street_address = request.form["street_address"]
@@ -143,7 +143,7 @@ def edit_address(id):
         email = request.form["email"]
         address_owner = request.form["address_owner"]
         if not addresses.new_address(address_owner, full_name, street_address, zip_code, city, phone_number, email):
-            return render_template("new_address.html", id=id, employee=users.is_employee())
+            return render_template("new_address.html", user_id=id, employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
         addresses.delete_address(id)
         flash("Osoitetiedot päivitetty!", category="success")
         return redirect(url_for("account", id=address_owner))
@@ -164,10 +164,10 @@ def error():
 def cart():
     order_id = orders.get_open_order_id(users.get_user_id_by_username())
     if not order_id:
-        return render_template("cart.html", id=users.get_user_id_by_username(), employee=users.is_employee())
+        return render_template("cart.html", user_id=users.get_user_id_by_username(), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
     products = orders.get_order_items(order_id)
     total_sum = orders.get_total_sum(order_id)
-    return render_template("cart.html", id=users.get_user_id_by_username(), employee=users.is_employee(), products=products, total_sum=total_sum)
+    return render_template("cart.html", user_id=users.get_user_id_by_username(), employee=users.is_employee(), products=products, total_sum=total_sum, number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
 
 @app.route("/update-quantity", methods=["POST"])
 def update_quantity():
@@ -176,3 +176,15 @@ def update_quantity():
     order_id = request.form["order_id"]
     orders.update_item_quantity(product_id, quantity, order_id)
     return redirect(url_for("cart"))
+
+@app.route("/add-item-to-cart/<int:product_id>")
+def add_item_to_cart(product_id):
+    user_id = users.get_user_id_by_username()
+    order_id = orders.get_open_order_id(user_id)
+    if not order_id:
+        order_id = orders.create_new(user_id)
+    if orders.add_item(order_id, product_id):
+        flash("Tuote lisätty ostoskoriin!", category="success")
+    else:
+        flash("Tuotetta ei voitu lisätä ostoskoriin.", category="error")
+    return redirect(url_for("product", id=product_id))

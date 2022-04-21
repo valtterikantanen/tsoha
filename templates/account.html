@@ -7,6 +7,7 @@ Käyttäjätiedot
 Omat asiakastiedot
 {% endif %}
 {% endblock %}
+
 {% block content %}
 {% if employee %}
 <h1>Käyttäjätiedot</h1>
@@ -40,18 +41,18 @@ Omat asiakastiedot
     {% endif %}
     {% endfor %}
 </table>
-<p><a href="/new-address/{{ id }}">Lisää uusi osoite</a></p>
+<p><a href="/new-address/{{ user_id }}">Lisää uusi osoite</a></p>
 {% elif not addresses %}
 {% if employee %}
 <p>Käyttäjä ei ole lisännyt yhtään osoitetta.</p>
-<p><a href="/new-address/{{ id }}">Lisää uusi osoite</a></p>
+<p><a href="/new-address/{{ user_id }}">Lisää uusi osoite</a></p>
 {% elif not employee %}
-<p>Sinulla ei ole osoitteita. Lisää uusi osoite <a href="/new-address/{{ id }}">tästä</a>.</p>
+<p>Sinulla ei ole osoitteita. Lisää uusi osoite <a href="/new-address/{{ user_id }}">tästä</a>.</p>
 {% endif %}
 {% endif %}
 
 {% if employee %}
-<p><a href="/../make-admin/{{ id }}" onclick="return confirm('Haluatko varmasti lisätä käyttäjälle ylläpitäjän oikeudet?')">Lisää työntekijän oikeudet</a></p>
+<p><a href="/../make-admin/{{ user_id }}" onclick="return confirm('Haluatko varmasti lisätä käyttäjälle ylläpitäjän oikeudet?')">Lisää työntekijän oikeudet</a></p>
 {% endif %}
 
 {% with messages = get_flashed_messages() %}

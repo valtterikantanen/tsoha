@@ -17,8 +17,8 @@
                 <li><a href="{{ url_for("customers") }}">Asiakkaat</a></li>
                 {% endif %}
                 {% if not employee %}
-                <li><a href="{{ url_for("account", id=id) }}">Omat asiakastiedot</a></li>
-                <li><a href="{{ url_for("cart") }}">Ostoskori</a></li>
+                <li><a href="{{ url_for("account", id=user_id) }}">Omat asiakastiedot</a></li>
+                <li><a href="{{ url_for("cart") }}">Ostoskori {% if number_of_items %}<b>({{ number_of_items }})</b>{% endif %}</a></li>
                 {% endif %}
                 <li><a href="{{ url_for("logout") }}">Kirjaudu ulos</a></li>
             </ul>

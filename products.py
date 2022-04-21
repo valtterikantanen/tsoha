@@ -29,6 +29,11 @@ def get_product_info(id):
     product = db.session.execute(query, {"id": id}).fetchone()
     return product
 
+def get_current_quantity(id):
+    query = "SELECT quantity FROM products WHERE id=:id"
+    quantity = db.session.execute(query, {"id": id}).fetchone()[0]
+    return quantity
+
 def get_price_history(id):
     query = "SELECT price, created_at FROM prices WHERE product_id=:id ORDER BY created_at DESC"
     price_history = db.session.execute(query, {"id": id}).fetchall()
