@@ -22,11 +22,13 @@ Sovellusta voi käyttää [Herokussa](https://vast-coast-44980.herokuapp.com/). 
 * Asiakkaat voivat tarkastella tuotteiden tietoja.
 * Työntekijät voivat lisätä uusia tuotteita ja muokata olemassaolevien tuotteiden tietoja (esim. tuotekuvaukset, hinnat, varastosaldot).
 * Asiakkaat voivat tarkastella ja päivittää omia yhteystietojaan.
+* Asiakkaat voivat lisätä tuotteita ostoskoriin.
 * Työntekijät voivat lisätä työntekijän oikeuksia muille käyttäjille.
 
 ### Vielä puuttuvat
 
-* Asiakkaat voivat tehdä uusia tilauksia, joita työntekijät voivat selailla ja käsitellä.
+* Asiakkaat voivat tehdä ostoskoriin lisätyistä tuotteista uuden tilauksen.
+* Työntekijät voivat selailla ja käsitellä tilauksia.
 * Asiakkaat voivat katsella aiempia tilauksiaan ja laskujaan.
 * Työntekijät voivat lähettää uusia laskuja sekä tarkastella kaikkia lähetettyjä laskuja. Työntekijät pystyvät myös lähettämään maksumuistutuksia ja merkitsemään laskuja maksetuiksi.
 * Työntekijät voivat tarkastella toteutuneita myyntejä esimerkiksi tuotteen, ajankohdan tai asiakkaan mukaan.
@@ -37,3 +39,7 @@ Sovellusta voi käyttää [Herokussa](https://vast-coast-44980.herokuapp.com/). 
 ### Välipalautus 2
 
 Tässä vaiheessa olen priorisoinut sovelluksen perustoiminnallisuuksia. Esimerkiksi sovelluksen ulkoasu on askeettinen, koska sivuja ei vielä ole muotoiltu CSS:llä. Lisäksi koodia jaetaan useampaan tiedostoon myöhemmissä vaiheissa.
+
+### Välipalautus 3
+
+Toimintoja on nyt laajennettu, ja suurin osa toiminnallisuuksista on nyt toteutettu. Tietokantataulujen määrä on kasvanut kahdesta kuuteen. Koodia on myös selkiytetty jakamalla sitä useampaan tiedostoon. Ennen lopullista palautusta sovellukseen lisätään vielä loputkin ominaisuudet. Myös sovelluksen ulkoasua parannetaan.
