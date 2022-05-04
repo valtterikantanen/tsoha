@@ -126,14 +126,14 @@ def new_address(id):
         if addresses.new_address(id, full_name, street_address, zip_code, city, phone_number, email):
             flash("Uusi osoite lisätty!", category="success")
             return redirect(url_for("account", id=id))
-        return render_template("new_address.html", id=id, employee=users.is_employee(), full_name=full_name, street_address=street_address, zip_code=zip_code, city=city, phone_number=phone_number, email=email)
+        return render_template("new_address.html", user_id=id, employee=users.is_employee(), full_name=full_name, street_address=street_address, zip_code=zip_code, city=city, phone_number=phone_number, email=email)
 
 @app.route("/edit-address/<int:id>", methods=["GET", "POST"])
 def edit_address(id):
     if request.method == "GET":
         if addresses.get_address_owner(id) != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
-        return render_template("edit_address.html", user_id=id, address=addresses.get_address(id), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
+        return render_template("edit_address.html", id=id, user_id=addresses.get_address_owner(id), address=addresses.get_address(id), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
     if request.method == "POST":
         full_name = request.form["full_name"]
         street_address = request.form["street_address"]
@@ -143,7 +143,7 @@ def edit_address(id):
         email = request.form["email"]
         address_owner = request.form["address_owner"]
         if not addresses.new_address(address_owner, full_name, street_address, zip_code, city, phone_number, email):
-            return render_template("new_address.html", user_id=id, employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
+            return render_template("new_address.html", id=id, user_id=addresses.get_address_owner(id), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
         addresses.delete_address(id)
         flash("Osoitetiedot päivitetty!", category="success")
         return redirect(url_for("account", id=address_owner))
@@ -162,12 +162,15 @@ def error():
 
 @app.route("/cart", methods=["GET", "POST"])
 def cart():
+    is_employee = users.is_employee()
+    if is_employee:
+        return errors.page_not_found()
     order_id = orders.get_open_order_id(users.get_user_id_by_username())
     if not order_id:
-        return render_template("cart.html", user_id=users.get_user_id_by_username(), employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
+        return render_template("cart.html", user_id=users.get_user_id_by_username(), employee=False, number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
     products = orders.get_order_items(order_id)
     total_sum = orders.get_total_sum(order_id)
-    return render_template("cart.html", user_id=users.get_user_id_by_username(), employee=users.is_employee(), products=products, total_sum=total_sum, number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
+    return render_template("cart.html", user_id=users.get_user_id_by_username(), employee=False, products=products, total_sum=total_sum, number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
 
 @app.route("/update-quantity", methods=["POST"])
 def update_quantity():

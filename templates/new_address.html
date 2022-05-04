@@ -2,7 +2,7 @@
 {% block title %}Lisää uusi osoite{% endblock %}
 {% block content %}
 <h1>Lisää uusi osoite</h1>
-<form action="/new-address/{{ id }}" method="POST">
+<form action="/new-address/{{ user_id }}" method="POST">
     Nimi: <input type="text" name="full_name" value="{{ full_name }}" required> <br>
     Katuosoite: <input type="text" name="street_address" value="{{ street_address }}" required> <br>
     Postinumero: <input type="text" name="zip_code" value="{{ zip_code }}" required> <br>
