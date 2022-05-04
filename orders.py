@@ -71,8 +71,8 @@ def set_address_to_order(address_id, order_id):
 
 def get_address_id(order_id):
     query = "SELECT address_id FROM orders WHERE id=:order_id"
-    order_id = db.session.execute(query, {"order_id": order_id}).fetchone()
-    return order_id[0] if order_id else None
+    address_id = db.session.execute(query, {"order_id": order_id}).fetchone()
+    return address_id[0] if address_id else None
 
 def send_order(order_id):
     query = "UPDATE orders SET status='sent' WHERE id=:order_id"
