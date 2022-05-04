@@ -11,6 +11,7 @@
         <th>Määrä</th>
         <th>Kpl-hinta</th>
         <th>Yhteensä</th>
+        <th></th>
     </tr>
     {% for product in products %}
     <tr>
@@ -18,21 +19,37 @@
         <td>
             <form action="/update-quantity" METHOD="POST">
             <input type="hidden" name="product_id" value="{{ product.id }}">
-            <input type="hidden" name="order_id" value="{{ product.order_id }}">
-            <select name="quantity" onchange="this.form.submit()">
-                {% for i in range(product.maximum + 1) %}
-                <option value="{{ i }}" {% if i==product.quantity %} selected {% endif %}>{{ i }}</option>
-                {% endfor %}
-            </select>
+            <input type="hidden" id="order_id" name="order_id" value="{{ product.order_id }}">
+            <input type="number" id="quantity" name="quantity" min="0" max="{{ product.maximum }}" value="{{ product.quantity }}" onchange="this.form.submit()">
             </form>
         </td>
         <td>{{ ("%.2f" % product.price).replace(".", ",") }} €</td>
         <td>{{ ("%.2f" % product.subtotal).replace(".", ",") }} €</td>
+        <td><button type="button" onclick="location.href = '/delete-item/{{ product.id }}'">Poista</button></td>
     </tr>
     {% endfor %}
 </table>
 <br>
 <b>Yhteensä: {{ ("%.2f" % total_sum).replace(".", ",") }} €</b>
+{% if user_addresses %}
+<h3>Valitse toimitusosoite</h3>
+<form action="/add-address-to-order" METHOD="POST">
+    <input type="hidden" id="add_address_order_id" name="order_id">
+    <select name="address" onchange="this.form.submit()">
+        {% for address in user_addresses %}
+        <option id="name" name="address" value="{{ address[0] }}" {% if address[0] == default_address %} selected="selected" {% endif %}>{{ address[1] }}</option>
+        {% endfor %}
+    </select>
+</form>
+<p><button type="button" onclick="location.href = '/send-order/' + getOrderId()">Lähetä tilaus</button></p>
+{% else %}
+<p>Sinulla ei ole osoitteita. Lähettääksesi tilauksen lisää uusi osoite <a href="/new-address/{{ user_id }}">tästä</a>.</p>
+{% endif %}
+
+<script>
+    document.getElementById("add_address_order_id").value = getOrderId();
+</script>
+
 {% else %}
 <p>Ostoskorissasi ei ole yhtään tuotetta.</p>
 {% endif %}

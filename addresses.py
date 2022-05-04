@@ -9,6 +9,13 @@ def get_all_addresses(id):
     addresses = db.session.execute(query, {"id": id}).fetchall()
     return addresses
 
+def get_formatted_visible_addresses(addresses):
+    user_addresses = []
+    for address in addresses:
+        if address[7]:
+            user_addresses.append((address[0], f"{address[1]}, {address[2]}, {address[3]} {address[4]}, {address[5]}, {address[6]}"))
+    return user_addresses
+
 def new_address(id, full_name, street_address, zip_code, city, phone_number, email):
     errors = validate_user_data(full_name, street_address, zip_code, city, phone_number.replace(" ", ""), email)
     if errors:

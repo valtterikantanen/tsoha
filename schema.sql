@@ -34,7 +34,7 @@ CREATE TABLE addresses (
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users,
-    address INTEGER REFERENCES addresses,
+    address_id INTEGER REFERENCES addresses,
     status TEXT DEFAULT 'open',
     sent_at TIMESTAMP
 );

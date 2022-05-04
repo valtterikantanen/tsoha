@@ -7,6 +7,11 @@ def create_new(user_id):
     db.session.commit()
     return order_id
 
+def get_order_owner(order_id):
+    query = "SELECT user_id FROM orders WHERE id=:order_id"
+    user_id = db.session.execute(query, {"order_id": order_id}).fetchone()
+    return user_id[0] if user_id else None
+
 def get_open_order_id(user_id):
     query = "SELECT id FROM orders WHERE user_id=:user_id AND status='open'"
     order_id = db.session.execute(query, {"user_id": user_id}).fetchone()
@@ -58,3 +63,18 @@ def update_item_quantity(product_id, quantity, order_id):
         db.session.execute(query, {"quantity": quantity, "product_id": product_id, "order_id": order_id})
     db.session.commit()
     return True
+
+def set_address_to_order(address_id, order_id):
+    query = "UPDATE orders SET address_id=:address_id WHERE id=:order_id"
+    db.session.execute(query, {"address_id": address_id, "order_id": order_id})
+    db.session.commit()
+
+def get_address_id(order_id):
+    query = "SELECT address_id FROM orders WHERE id=:order_id"
+    order_id = db.session.execute(query, {"order_id": order_id}).fetchone()
+    return order_id[0] if order_id else None
+
+def send_order(order_id):
+    query = "UPDATE orders SET status='sent' WHERE id=:order_id"
+    db.session.execute(query, {"order_id": order_id})
+    db.session.commit()

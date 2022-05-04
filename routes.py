@@ -165,12 +165,14 @@ def cart():
     is_employee = users.is_employee()
     if is_employee:
         return errors.page_not_found()
-    order_id = orders.get_open_order_id(users.get_user_id_by_username())
+    user_id = users.get_user_id_by_username()
+    order_id = orders.get_open_order_id(user_id)
+    user_addresses = addresses.get_formatted_visible_addresses(addresses.get_all_addresses(user_id))
     if not order_id:
-        return render_template("cart.html", user_id=users.get_user_id_by_username(), employee=False, number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
+        return render_template("cart.html", user_id=user_id, employee=False, number_of_items=0, user_addresses=user_addresses, default_address=orders.get_address_id(order_id))
     products = orders.get_order_items(order_id)
     total_sum = orders.get_total_sum(order_id)
-    return render_template("cart.html", user_id=users.get_user_id_by_username(), employee=False, products=products, total_sum=total_sum, number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
+    return render_template("cart.html", user_id=user_id, employee=False, products=products, total_sum=total_sum, number_of_items=orders.get_total_number_of_items_in_cart(user_id), user_addresses=user_addresses, default_address=orders.get_address_id(order_id))
 
 @app.route("/update-quantity", methods=["POST"])
 def update_quantity():
@@ -178,6 +180,10 @@ def update_quantity():
     quantity = request.form["quantity"]
     order_id = request.form["order_id"]
     orders.update_item_quantity(product_id, quantity, order_id)
+    if int(quantity) > orders.get_number_of_items(order_id, product_id):
+        flash(f"Tuotteen määrää ei voitu päivittää, koska tuotetta on varastossa {products.get_current_quantity(product_id)} kappaletta.", category="error")
+    else:
+        flash("Ostoskori päivitetty!", category="success")
     return redirect(url_for("cart"))
 
 @app.route("/add-item-to-cart/<int:product_id>")
@@ -191,3 +197,26 @@ def add_item_to_cart(product_id):
     else:
         flash("Tuotetta ei voitu lisätä ostoskoriin.", category="error")
     return redirect(url_for("product", id=product_id))
+
+@app.route("/delete-item/<int:product_id>")
+def delete_item(product_id):
+    user_id = users.get_user_id_by_username()
+    order_id = orders.get_open_order_id(user_id)
+    orders.update_item_quantity(product_id, "0", order_id)
+    flash("Ostoskori päivitetty!", category="success")
+    return redirect(url_for("cart"))
+
+@app.route("/add-address-to-order", methods=["POST"])
+def add_address_to_order():
+    address_id = request.form["address"]
+    order_id = request.form["order_id"]
+    orders.set_address_to_order(address_id, order_id)
+    return redirect(url_for("cart"))
+
+@app.route("/send-order/<int:order_id>")
+def send_order(order_id):
+    user_id = orders.get_order_owner(order_id)
+    if user_id != users.get_user_id_by_username() and not users.is_employee():
+        return errors.authentication_error()
+    orders.send_order(order_id)
+    return redirect(url_for("account", id=user_id))
