@@ -231,15 +231,16 @@ def my_orders():
     if users.is_employee():
         return errors.page_not_found()
     open_orders = orders.get_open_orders(user_id)
-    open_order_grand_totals = []
     open_order_ids = orders.get_open_order_ids(user_id)
+    open_order_grand_totals, delivered_order_grand_totals = None, None
     if open_order_ids:
+        open_order_grand_totals = []
         for order_id in open_order_ids:
             open_order_grand_totals.append(orders.get_total_sum(order_id[0]))
     delivered_orders = orders.get_delivered_orders(user_id)
-    delivered_order_grand_totals = []
     delivered_order_ids = orders.get_delivered_order_ids(user_id)
     if delivered_order_ids:
+        delivered_order_grand_totals = []
         for order_id in delivered_order_ids:
             delivered_order_grand_totals.append(orders.get_total_sum(order_id[0]))
     return render_template("my_orders.html", user_id=user_id, employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(user_id), open_orders=open_orders, open_order_grand_totals=open_order_grand_totals, delivered_orders=delivered_orders, delivered_order_grand_totals=delivered_order_grand_totals)

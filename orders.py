@@ -104,7 +104,7 @@ def get_order_information(order_id):
 def get_open_orders(user_id):
     query = "SELECT id, sent_at FROM orders WHERE user_id=:user_id AND status='open' ORDER BY sent_at DESC"
     open_orders = db.session.execute(query, {"user_id": user_id}).fetchall()
-    return open_orders
+    return open_orders if open_orders else None
 
 def get_open_order_ids(user_id):
     query = "SELECT id FROM orders WHERE user_id=:user_id AND status='open' ORDER BY sent_at DESC"
@@ -114,7 +114,7 @@ def get_open_order_ids(user_id):
 def get_delivered_orders(user_id):
     query = "SELECT id, sent_at FROM orders WHERE user_id=:user_id AND status='delivered' ORDER BY sent_at DESC"
     delivered_orders = db.session.execute(query, {"user_id": user_id}).fetchall()
-    return delivered_orders
+    return delivered_orders if delivered_orders else None
 
 def get_delivered_order_ids(user_id):
     query = "SELECT id FROM orders WHERE user_id=:user_id AND status='delivered' ORDER BY sent_at DESC"
