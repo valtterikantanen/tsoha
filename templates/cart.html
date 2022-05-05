@@ -32,16 +32,23 @@
 <br>
 <b>Yhteensä: {{ ("%.2f" % total_sum).replace(".", ",") }} €</b>
 {% if user_addresses %}
-<h3>Valitse toimitusosoite</h3>
+<h3>Toimitusosoite</h3>
 <form action="/add-address-to-order" METHOD="POST">
     <input type="hidden" id="add_address_order_id" name="order_id">
     <select name="address" onchange="this.form.submit()">
+        {% if not default_address %}
+        <option value="" disabled selected>Valitse toimitusosoite...</option>
+        {% endif %}
         {% for address in user_addresses %}
-        <option id="name" name="address" value="{{ address[0] }}" {% if address[0] == default_address %} selected="selected" {% endif %}>{{ address[1] }}</option>
+        <option id="name" name="address" value="{{ address[0] }}" {% if address[0] == default_address %} selected {% endif %}>{{ address[1] }}</option>
         {% endfor %}
     </select>
 </form>
+{% if default_address %}
 <p><button type="button" onclick="location.href = '/send-order/' + getOrderId()">Lähetä tilaus</button></p>
+{% else %}
+<p>Valitse toimitusosoite lähettääksesi tilauksen.</p>
+{% endif %}
 {% else %}
 <p>Sinulla ei ole osoitteita. Lähettääksesi tilauksen lisää uusi osoite <a href="/new-address/{{ user_id }}">tästä</a>.</p>
 {% endif %}
