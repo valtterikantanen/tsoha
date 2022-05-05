@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Tilaus {{ order_id }}{% endblock %}
+{% block content %}
+<h1>Tilaus {{ order_id }}</h1>
+
+<p>Tilaus tehty: {{ sent_at.strftime("%-d.%-m.%Y klo %-H.%M.%S") }}</p>
+
+<h2>Tilaukseen kuuluvat tuotteet</h2>
+<table>
+    <tr>
+        <th>Tuotenumero</th>
+        <th>Tuote</th>
+        <th>Määrä</th>
+        <th>Kpl-hinta</th>
+        <th>Yhteensä</th>
+    </tr>
+    {% for order in order_information %}
+    <tr>
+        <td>{{ "{:05d}".format(order.id) }}</td>
+        <td><a href="../product/{{ order.id }}">{{ order.name }}</a></td>
+        <td>{{ order.quantity }}</td>
+        <td>{{ ("%.2f" % order.price).replace(".", ",") }} €</td>
+        <td>{{ ("%.2f" % order.subtotal).replace(".", ",") }} €</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+<b>Yhteensä: {{ ("%.2f" % grand_total).replace(".", ",") }} €</b>
+
+<h2>Toimitusosoite</h2>
+<p>
+    {{ address[1] }}<br>
+    {{ address[2] }}<br>
+    {{ address[3] }} {{ address[4] }}<br>
+    <img src="{{ url_for('static', filename='/images/phone.png') }}" width="12" height="12"/> {{ address[5] }}<br>
+    <img src="{{ url_for('static', filename='/images/mail.png') }}" width="12" height="12"/> {{ address[6] }}
+</p>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% endblock %}

@@ -28,7 +28,7 @@ Tuotetta ei löytynyt
     {% for price in price_history %}
     <tr>
         <td>{{ ("%.2f" % price[0]).replace(".", ",") }} €</td>
-        <td>{{ price[1].strftime("%d.%-m.%Y %H:%M:%S") }} </td>
+        <td>{{ price[1].strftime("%-d.%-m.%Y %-H:%M:%S") }} </td>
     </tr>
     {% endfor %}
 </table>
