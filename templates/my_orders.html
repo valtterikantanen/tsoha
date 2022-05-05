@@ -5,7 +5,7 @@
 <h1>Omat tilaukset</h1>
 
 <h2>Avoimet tilaukset</h2>
-{% if open_orders | length > 0 %}
+{% if open_orders is not none %}
 <table>
     <tr>
         <th>Tilausnumero</th>
@@ -24,7 +24,7 @@
 <p>Ei avoimia tilauksia</p>
 {% endif %}
 <h2>Toimitetut tilaukset</h2>
-{% if delivered_orders | length > 0 %}
+{% if delivered_orders is not none %}
 <table>
     <tr>
         <th>Tilausnumero</th>
