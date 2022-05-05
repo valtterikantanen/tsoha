@@ -39,14 +39,18 @@ def get_price_history(id):
     price_history = db.session.execute(query, {"id": id}).fetchall()
     return price_history
 
+def get_current_price(product_id):
+    query = "SELECT price FROM prices WHERE product_id=:product_id ORDER BY created_at DESC LIMIT 1"
+    current_price = db.session.execute(query, {"product_id": product_id}).fetchone()[0]
+    return current_price
+
 def edit_product(id, name, quantity, price, description):
     if validate_product_data(name, quantity, price, description):
         return False
     query = "UPDATE products SET name=:name, quantity=:quantity, description=:description WHERE id=:id"
     db.session.execute(query, {"name": name, "quantity": quantity, "description": description, "id": id})
     db.session.commit()
-    query = "SELECT price FROM prices WHERE product_id=:id ORDER BY created_at DESC LIMIT 1"
-    current_price = db.session.execute(query, {"id": id}).fetchone()[0]
+    current_price = get_current_price(id)
     if float(current_price) != float(price):
         query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
         db.session.execute(query, {"product_id": id, "price": price})
