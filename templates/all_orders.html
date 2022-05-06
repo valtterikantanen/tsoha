@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Tilaukset{% endblock %}
+{% block content %}
+<h1>Tilaukset</h1>
+
+<h2>Avoimet tilaukset</h2>
+{% if open_orders %}
+<table>
+    <tr>
+        <th>Tilausnumero</th>
+        <th>Tilaus tehty</th>
+        <th>Asiakas</th>
+    </tr>
+    {% for order in open_orders %}
+    <tr>
+        <td><a href="../order/{{ order[0] }}">{{ "{:05d}".format(order[0]) }}</a></td>
+        <td>{{ order[1].strftime("%-d.%-m.%Y klo %-H.%M.%S") }}</td>
+        <td><a href="../account/{{ order[2] }}">{{ order[3] }}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>Ei avoimia tilauksia</p>
+{% endif %}
+<h2>Toimitetut tilaukset</h2>
+{% if delivered_orders %}
+<table>
+    <tr>
+        <th>Tilausnumero</th>
+        <th>Tilaus tehty</th>
+        <th>Loppusumma</th>
+    </tr>
+    {% for order in delivered_orders %}
+    <tr>
+        <td><a href="../order/{{ order[0] }}">{{ "{:05d}".format(order[0]) }}</a></td>
+        <td>{{ order[1].strftime("%-d.%-m.%Y klo %-H.%M.%S") }}</td>
+        <td><a href="../account/{{ order[2] }}">{{ order[3] }}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>Ei toimitettuja tilauksia</p>
+{% endif %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<p>{{ message }}</p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+{% endblock %}

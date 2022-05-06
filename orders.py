@@ -106,6 +106,11 @@ def get_open_orders(user_id):
     open_orders = db.session.execute(query, {"user_id": user_id}).fetchall()
     return open_orders if open_orders else None
 
+def get_all_open_orders():
+    query = "SELECT O.id AS order_id, O.sent_at, O.user_id, U.username FROM orders O, users U WHERE O.user_id=U.id AND O.status='open'"
+    open_orders = db.session.execute(query).fetchall()
+    return open_orders if open_orders else None
+
 def get_open_order_ids(user_id):
     query = "SELECT id FROM orders WHERE user_id=:user_id AND status='open' ORDER BY sent_at DESC"
     open_order_ids = db.session.execute(query, {"user_id": user_id}).fetchall()
@@ -115,6 +120,11 @@ def get_delivered_orders(user_id):
     query = "SELECT id, sent_at FROM orders WHERE user_id=:user_id AND status='delivered' ORDER BY sent_at DESC"
     delivered_orders = db.session.execute(query, {"user_id": user_id}).fetchall()
     return delivered_orders if delivered_orders else None
+
+def get_all_delivered_orders():
+    query = "SELECT O.id AS order_id, O.sent_at, O.user_id, U.username FROM orders O, users U WHERE O.user_id=U.id AND O.status='delivered'"
+    open_orders = db.session.execute(query).fetchall()
+    return open_orders if open_orders else None
 
 def get_delivered_order_ids(user_id):
     query = "SELECT id FROM orders WHERE user_id=:user_id AND status='delivered' ORDER BY sent_at DESC"
