@@ -87,7 +87,7 @@ def edit_product(id):
     if request.method == "GET":
         if not users.is_employee():
             return errors.authentication_error()
-        return render_template("edit_product.html", id=id, product=products.get_product_info(id), employee=users.is_employee())
+        return render_template("edit_product.html", id=id, product=products.get_product_info(id), employee=True)
     if request.method == "POST":
         name = request.form["name"]
         quantity = request.form["quantity"]
@@ -96,7 +96,7 @@ def edit_product(id):
         if products.edit_product(id, name, quantity, price, description):
             flash("Tuotteen tiedot päivitetty!", category="success")
             return redirect(url_for("product", id=id))
-        return render_template("edit_product.html", id=id, product=products.get_product_info(id), employee=users.is_employee())
+        return render_template("edit_product.html", id=id, product=products.get_product_info(id), employee=True)
 
 @app.route("/account/<int:id>")
 def account(id):
@@ -105,7 +105,20 @@ def account(id):
         return errors.authentication_error()
     if users.is_employee(id):
         return errors.page_not_found()
-    return render_template("account.html", employee=users.is_employee(), user_id=id, username=users.get_username_by_user_id(id), addresses=addresses.get_all_addresses(id), number_of_items=orders.get_total_number_of_items_in_cart(users.get_user_id_by_username()))
+    open_orders = orders.get_open_orders(id)
+    open_order_ids = orders.get_open_order_ids(id)
+    open_order_grand_totals, delivered_order_grand_totals = None, None
+    if open_order_ids:
+        open_order_grand_totals = []
+        for order_id in open_order_ids:
+            open_order_grand_totals.append(orders.get_total_sum(order_id[0]))
+    delivered_orders = orders.get_delivered_orders(id)
+    delivered_order_ids = orders.get_delivered_order_ids(id)
+    if delivered_order_ids:
+        delivered_order_grand_totals = []
+        for order_id in delivered_order_ids:
+            delivered_order_grand_totals.append(orders.get_total_sum(order_id[0]))
+    return render_template("account.html", employee=users.is_employee(), user_id=id, username=users.get_username_by_user_id(id), addresses=addresses.get_all_addresses(id), number_of_items=orders.get_total_number_of_items_in_cart(id), open_orders=open_orders, open_order_grand_totals=open_order_grand_totals, delivered_orders=delivered_orders, delivered_order_grand_totals=delivered_order_grand_totals)
 
 @app.route("/new-address/<int:id>", methods=["GET", "POST"])
 def new_address(id):
@@ -225,26 +238,6 @@ def send_order(order_id):
     flash("Tilaus lähetetty!", category="success")
     return redirect(url_for("account", id=user_id))
 
-@app.route("/my-orders/")
-def my_orders():
-    user_id = users.get_user_id_by_username()
-    if users.is_employee():
-        return errors.page_not_found()
-    open_orders = orders.get_open_orders(user_id)
-    open_order_ids = orders.get_open_order_ids(user_id)
-    open_order_grand_totals, delivered_order_grand_totals = None, None
-    if open_order_ids:
-        open_order_grand_totals = []
-        for order_id in open_order_ids:
-            open_order_grand_totals.append(orders.get_total_sum(order_id[0]))
-    delivered_orders = orders.get_delivered_orders(user_id)
-    delivered_order_ids = orders.get_delivered_order_ids(user_id)
-    if delivered_order_ids:
-        delivered_order_grand_totals = []
-        for order_id in delivered_order_ids:
-            delivered_order_grand_totals.append(orders.get_total_sum(order_id[0]))
-    return render_template("my_orders.html", user_id=user_id, employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(user_id), open_orders=open_orders, open_order_grand_totals=open_order_grand_totals, delivered_orders=delivered_orders, delivered_order_grand_totals=delivered_order_grand_totals)
-
 @app.route("/order/<int:order_id>")
 def order(order_id):
     user_id = users.get_user_id_by_username()
@@ -255,3 +248,11 @@ def order(order_id):
     address = addresses.get_address(orders.get_address_id(order_id))
     sent_at = orders.get_order_time(order_id)
     return render_template("order.html", order_id=str(order_id).zfill(5), user_id=user_id, employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(user_id), order_information=order_information, grand_total=grand_total, address=address, sent_at=sent_at)
+
+@app.route("/all-orders")
+def all_orders():
+    if not users.is_employee():
+        return errors.authentication_error()
+    open_orders = orders.get_all_open_orders()
+    delivered_orders = orders.get_all_delivered_orders()
+    return render_template("all_orders.html", employee=True, open_orders=open_orders, delivered_orders=delivered_orders)

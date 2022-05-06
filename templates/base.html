@@ -15,10 +15,10 @@
                 {% if employee %}
                 <li><a href="{{ url_for("new_product") }}">Lisää tuote</a></li>
                 <li><a href="{{ url_for("customers") }}">Asiakkaat</a></li>
+                <li><a href="{{ url_for("all_orders") }}">Tilaukset</a></li>
                 {% endif %}
                 {% if not employee %}
                 <li><a href="{{ url_for("account", id=user_id) }}">Omat asiakastiedot</a></li>
-                <li><a href="{{ url_for("my_orders") }}">Omat tilaukset</a></li>
                 <li><a href="{{ url_for("cart") }}">Ostoskori {% if number_of_items %}<b>({{ number_of_items }})</b>{% endif %}</a></li>
                 {% endif %}
                 <li><a href="{{ url_for("logout") }}">Kirjaudu ulos</a></li>
