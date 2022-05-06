@@ -5,8 +5,10 @@ from db import db
 def add_product(name, quantity, price, description):
     if validate_product_data(name, quantity, price, description):
         return False
-    query = "INSERT INTO products (name, description, quantity) VALUES (:name, :description, :quantity) RETURNING id"
-    product_id = db.session.execute(query, {"name": name, "description": description, "quantity": quantity}).fetchone()[0]
+    query = "INSERT INTO products (name, description, quantity) " \
+            "VALUES (:name, :description, :quantity) RETURNING id"
+    product_id = db.session.execute(
+        query, {"name": name, "description": description, "quantity": quantity}).fetchone()[0]
     query = "INSERT INTO prices (product_id, price) VALUES (:product_id, :price)"
     db.session.execute(query, {"product_id": product_id, "price": price})
     db.session.commit()
@@ -20,12 +22,16 @@ def all_products(order_option):
         "alpha-asc": 'ORDER BY A.name COLLATE "fi_FI"',
         "alpha-desc": 'ORDER BY A.name COLLATE "fi_FI" DESC'
     }
-    query = f"SELECT A.id, A.name, A.description, B.price, A.quantity FROM products A, (SELECT DISTINCT ON (product_id) product_id, price FROM prices ORDER BY product_id, created_at DESC) B WHERE A.id=B.product_id AND A.visible=TRUE {options[order_option]}"
+    query = "SELECT A.id, A.name, A.description, B.price, A.quantity FROM products A, (SELECT " \
+            "DISTINCT ON (product_id) product_id, price FROM prices ORDER BY product_id, " \
+            "created_at DESC) B WHERE A.id=B.product_id AND A.visible=TRUE "
+    query += options[order_option]
     products = db.session.execute(query).fetchall()
     return products
 
 def get_product_info(id):
-    query = "SELECT A.name, A.description, B.price, A.quantity FROM products A, prices B WHERE A.id=:id AND B.product_id=:id ORDER BY B.created_at DESC LIMIT 1"
+    query = "SELECT A.name, A.description, B.price, A.quantity FROM products A, prices B " \
+            "WHERE A.id=:id AND B.product_id=:id ORDER BY B.created_at DESC LIMIT 1"
     product = db.session.execute(query, {"id": id}).fetchone()
     return product
 
@@ -40,15 +46,18 @@ def get_price_history(id):
     return price_history
 
 def get_current_price(product_id):
-    query = "SELECT price FROM prices WHERE product_id=:product_id ORDER BY created_at DESC LIMIT 1"
+    query = "SELECT price FROM prices WHERE product_id=:product_id " \
+            "ORDER BY created_at DESC LIMIT 1"
     current_price = db.session.execute(query, {"product_id": product_id}).fetchone()[0]
     return current_price
 
 def edit_product(id, name, quantity, price, description):
     if validate_product_data(name, quantity, price, description):
         return False
-    query = "UPDATE products SET name=:name, quantity=:quantity, description=:description WHERE id=:id"
-    db.session.execute(query, {"name": name, "quantity": quantity, "description": description, "id": id})
+    query = "UPDATE products SET name=:name, quantity=:quantity, description=:description " \
+            "WHERE id=:id"
+    db.session.execute(query, {"name": name, "quantity": quantity,
+                               "description": description, "id": id})
     db.session.commit()
     current_price = get_current_price(id)
     if float(current_price) != float(price):

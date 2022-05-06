@@ -5,7 +5,9 @@ from flask import flash
 from db import db
 
 def get_all_addresses(id):
-    query = "SELECT A.id, A.full_name, A.street_address, A.zip_code, A.city, A.phone_number, A.email, A.visible FROM users U, addresses A WHERE U.id=A.user_id AND U.id=:id ORDER BY visible DESC"
+    query = "SELECT A.id, A.full_name, A.street_address, A.zip_code, A.city, A.phone_number, " \
+            "A.email, A.visible FROM users U, addresses A WHERE U.id=A.user_id AND U.id=:id " \
+            "ORDER BY visible DESC"
     addresses = db.session.execute(query, {"id": id}).fetchall()
     return addresses
 
@@ -13,21 +15,30 @@ def get_formatted_visible_addresses(addresses):
     user_addresses = []
     for address in addresses:
         if address[7]:
-            user_addresses.append((address[0], f"{address[1]}, {address[2]}, {address[3]} {address[4]}, {address[5]}, {address[6]}"))
+            user_addresses.append(
+                (address[0], f"{address[1]}, {address[2]}, {address[3]} " \
+                    f"{address[4]}, {address[5]}, {address[6]}"))
     return user_addresses
 
 def new_address(id, full_name, street_address, zip_code, city, phone_number, email):
-    errors = validate_user_data(full_name, street_address, zip_code, city, phone_number.replace(" ", ""), email)
+    errors = validate_user_data(
+        full_name, street_address, zip_code, city, phone_number.replace(" ", ""), email)
     if errors:
         return False
 
-    query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, :city, :phone_number, :email)"
-    db.session.execute(query, {"user_id": id, "full_name": full_name, "street_address": street_address, "zip_code": zip_code, "city": city, "phone_number": phone_number.replace(" ", ""), "email": email})
+    query = "INSERT INTO addresses (user_id, full_name, street_address, zip_code, city, " \
+            "phone_number, email) VALUES (:user_id, :full_name, :street_address, :zip_code, " \
+            ":city, :phone_number, :email)"
+    db.session.execute(query, {"user_id": id, "full_name": full_name,
+                               "street_address": street_address, "zip_code": zip_code,
+                               "city": city, "phone_number": phone_number.replace(" ", ""),
+                               "email": email})
     db.session.commit()
     return True
 
 def get_address(id):
-    query = "SELECT user_id AS address_owner, full_name, street_address, zip_code, city, phone_number, email FROM addresses WHERE id=:id"
+    query = "SELECT user_id AS address_owner, full_name, street_address, " \
+            "zip_code, city, phone_number, email FROM addresses WHERE id=:id"
     address = db.session.execute(query, {"id": id}).fetchone()
     return address
 
@@ -67,7 +78,7 @@ def validate_user_data(full_name, street_address, zip_code, city, phone_number, 
         flash("Virheellinen puhelinnumero", category="error")
         errors = True
 
-    if not re.match("^\S+@\S+\.\S+$", email) or not (4 < len(email) < 320):
+    if not re.match("^\S+@\S+\.\S+$", email) or not 4 < len(email) < 320:
         flash("Virheellinen sähköpostiosoite", category="error")
         errors = True
 

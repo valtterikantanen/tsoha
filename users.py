@@ -47,12 +47,9 @@ def logout():
 def is_employee(user_id=None):
     if not user_id:
         user_id = get_user_id_by_username()
-    try:
-        query = "SELECT role FROM users WHERE id=:user_id"
-        role = db.session.execute(query, {"user_id": user_id}).fetchone()[0]
-        return role == "employee"
-    except:
-        return False
+    query = "SELECT role FROM users WHERE id=:user_id"
+    role = db.session.execute(query, {"user_id": user_id}).fetchone()
+    return True if role[0] == "employee" else False
 
 def is_logged_in():
     return session.get("username")
