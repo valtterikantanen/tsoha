@@ -1,6 +1,5 @@
 from db import db
 import products
-import orders
 
 def create_new(user_id):
     query = "INSERT INTO orders (user_id) VALUES (:user_id) RETURNING id"
@@ -130,3 +129,13 @@ def get_delivered_order_ids(user_id):
     query = "SELECT id FROM orders WHERE user_id=:user_id AND status='delivered' ORDER BY sent_at DESC"
     delivered_order_ids = db.session.execute(query, {"user_id": user_id}).fetchall()
     return delivered_order_ids
+
+def get_order_status(order_id):
+    query = "SELECT status FROM orders WHERE id=:order_id"
+    status = db.session.execute(query, {"order_id": order_id}).fetchone()
+    return status[0] if status else None
+
+def handle_order(order_id):
+    query = "UPDATE orders SET status='delivered' WHERE id=:order_id"
+    db.session.execute(query, {"order_id": order_id})
+    db.session.commit()

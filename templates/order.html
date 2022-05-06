@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Tilaus {{ order_id }}{% endblock %}
+{% block title %}Tilaus {{ "{:05d}".format(order_id) }}{% endblock %}
 {% block content %}
-<h1>Tilaus {{ order_id }}</h1>
+<h1>Tilaus {{ "{:05d}".format(order_id) }}</h1>
 
 <p>Tilaus tehty: {{ sent_at.strftime("%-d.%-m.%Y klo %-H.%M.%S") }}</p>
+{% if status %}
+<p>Tila:{% if status == 'delivered' %} toimitettu {% elif status == 'open' %} avoin{% endif %}</p>
+{% endif %}
 
 <h2>Tilaukseen kuuluvat tuotteet</h2>
 <table>
@@ -36,5 +39,11 @@
     <img src="{{ url_for('static', filename='/images/phone.png') }}" width="12" height="12"/> {{ address[5] }}<br>
     <img src="{{ url_for('static', filename='/images/mail.png') }}" width="12" height="12"/> {{ address[6] }}
 </p>
+
+{% if employee %}
+{% if status == 'open' %}
+<button type="button" onclick="location.href = '/../handle-order/{{ order_id }}'">Käsittele tilaus</button>
+{% endif %}
+{% endif %}
 
 {% endblock %}

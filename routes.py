@@ -241,13 +241,16 @@ def send_order(order_id):
 @app.route("/order/<int:order_id>")
 def order(order_id):
     user_id = users.get_user_id_by_username()
+    status = orders.get_order_status(order_id)
+    if not status or status == "unfinished":
+        return errors.page_not_found()
     if orders.get_order_owner(order_id) != user_id and not users.is_employee():
         return errors.authentication_error()
     order_information = orders.get_order_information(order_id)
     grand_total = orders.get_total_sum(order_id)
     address = addresses.get_address(orders.get_address_id(order_id))
     sent_at = orders.get_order_time(order_id)
-    return render_template("order.html", order_id=str(order_id).zfill(5), user_id=user_id, employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(user_id), order_information=order_information, grand_total=grand_total, address=address, sent_at=sent_at)
+    return render_template("order.html", order_id=order_id, user_id=user_id, employee=users.is_employee(), number_of_items=orders.get_total_number_of_items_in_cart(user_id), order_information=order_information, grand_total=grand_total, address=address, sent_at=sent_at, status=status)
 
 @app.route("/all-orders")
 def all_orders():
@@ -256,3 +259,13 @@ def all_orders():
     open_orders = orders.get_all_open_orders()
     delivered_orders = orders.get_all_delivered_orders()
     return render_template("all_orders.html", employee=True, open_orders=open_orders, delivered_orders=delivered_orders)
+
+@app.route("/handle-order/<int:order_id>")
+def handle_order(order_id):
+    if not users.is_employee():
+        return errors.authentication_error()
+    if not orders.get_order_owner(order_id):
+        return errors.page_not_found()
+    orders.handle_order(order_id)
+    flash("Tilaus käsitelty!", category="success")
+    return redirect(url_for("order", order_id=order_id))
