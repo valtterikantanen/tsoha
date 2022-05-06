@@ -21,18 +21,17 @@ Sovellusta voi käyttää [Herokussa](https://vast-coast-44980.herokuapp.com/). 
 * Asiakkaat voivat luoda itselleen uuden tunnuksen. 
 * Asiakkaat voivat tarkastella tuotteiden tietoja.
 * Työntekijät voivat lisätä uusia tuotteita ja muokata olemassaolevien tuotteiden tietoja (esim. tuotekuvaukset, hinnat, varastosaldot).
-* Asiakkaat voivat tarkastella ja päivittää omia yhteystietojaan.
-* Asiakkaat voivat lisätä tuotteita ostoskoriin.
+* Asiakkaat voivat tarkastella ja päivittää omia yhteystietojaan, ja työntekijät voivat päivittää asiakkaiden yhteystietoja.
+* Asiakkaat voivat lisätä tuotteita ostoskoriin ja tehdä ostoskoriin lisätyistä tuotteista uuden tilauksen.
+* Työntekijät voivat selailla ja käsitellä tilauksia.
+* Asiakkaat voivat selailla aiempia tilauksiaan.
+* Järjestelmä huolehtii automaattisesti siitä, että tuotteiden varastosaldot ovat ajan tasalla sekä siitä, että tuotteita ei voi tilata enempää kuin niitä on varastossa.
 * Työntekijät voivat lisätä työntekijän oikeuksia muille käyttäjille.
 
-### Vielä puuttuvat
+### Jatkokehitysideoita
 
-* Asiakkaat voivat tehdä ostoskoriin lisätyistä tuotteista uuden tilauksen.
-* Työntekijät voivat selailla ja käsitellä tilauksia.
-* Asiakkaat voivat katsella aiempia tilauksiaan ja laskujaan.
-* Työntekijät voivat lähettää uusia laskuja sekä tarkastella kaikkia lähetettyjä laskuja. Työntekijät pystyvät myös lähettämään maksumuistutuksia ja merkitsemään laskuja maksetuiksi.
-* Työntekijät voivat tarkastella toteutuneita myyntejä esimerkiksi tuotteen, ajankohdan tai asiakkaan mukaan.
-* Järjestelmä huolehtii automaattisesti siitä, että tuotteiden varastosaldot ovat ajan tasalla sekä siitä, että tuotteita ei voi tilata enempää kuin niitä on varastossa.
+* Toteutuneiden myyntien tarkastelu esimerkiksi tuotteen, ajankohdan tai asiakkaan mukaan
+* Laskujen ja maksumuistutusten lähettäminen
 
 ## Työn edistyminen
 
