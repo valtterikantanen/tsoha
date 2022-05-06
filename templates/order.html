@@ -37,12 +37,4 @@
     <img src="{{ url_for('static', filename='/images/mail.png') }}" width="12" height="12"/> {{ address[6] }}
 </p>
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
-{% endif %}
-{% endwith %}
-
 {% endblock %}

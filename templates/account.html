@@ -95,12 +95,4 @@ Omat asiakastiedot
 <p><a href="/../make-admin/{{ user_id }}" onclick="return confirm('Haluatko varmasti lisätä käyttäjälle ylläpitäjän oikeudet?')">Lisää työntekijän oikeudet</a></p>
 {% endif %}
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
-{% endif %}
-{% endwith %}
-
 {% endblock %}

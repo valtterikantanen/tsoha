@@ -4,11 +4,4 @@
 <h1>Etusivu</h1>
 <p>Olet kirjautunut sisään nimellä <b>{{ session.username }}</b></p>
 <a href="/logout">Kirjaudu ulos</a>
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
-{% endif %}
-{% endwith %}
 {% endblock %}

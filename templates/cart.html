@@ -61,12 +61,4 @@
 <p>Ostoskorissasi ei ole yhtään tuotetta.</p>
 {% endif %}
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
-{% endif %}
-{% endwith %}
-
 {% endblock %}

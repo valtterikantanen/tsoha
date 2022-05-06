@@ -9,11 +9,4 @@
     Kuvaus: <textarea name="description" rows="4" cols="50"></textarea> <br>
     <input type="submit" value="Lisää uusi tuote">
 </form>
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
-{% endif %}
-{% endwith %}
 {% endblock %}

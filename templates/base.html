@@ -13,7 +13,6 @@
                 <li><a href="{{ url_for("index") }}">Etusivu</a></li>
                 <li><a href="{{ url_for("all_products") }}">Tuotteet</a></li>
                 {% if employee %}
-                <li><a href="{{ url_for("new_product") }}">Lisää tuote</a></li>
                 <li><a href="{{ url_for("customers") }}">Asiakkaat</a></li>
                 <li><a href="{{ url_for("all_orders") }}">Tilaukset</a></li>
                 {% endif %}
@@ -27,6 +26,14 @@
     </header>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     {% block content %}{% endblock %}
+    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 </body>
 
 </html>

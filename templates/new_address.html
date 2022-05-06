@@ -11,11 +11,4 @@
     Sähköpostiosoite: <input type="email" name="email" value="{{ email }}" required> <br>
     <input type="submit" value="Lisää uusi osoite">
 </form>
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
-{% endif %}
-{% endwith %}
 {% endblock %}

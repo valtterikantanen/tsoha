@@ -37,12 +37,6 @@ Tuotetta ei löytynyt
 <button type="button" onclick="location.href = '/add-item-to-cart/{{ id }}'">Lisää ostoskoriin</button>
 {% endif %}
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<p>{{ message }}</p>
-{% endfor %}
 {% endif %}
-{% endwith %}
-{% endif %}
+
 {% endblock %}
