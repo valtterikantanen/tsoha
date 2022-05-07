@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Muokkaa osoitetta{% endblock %}
 {% block content %}
-{% if not address %}
-<h1>Osoitetta ei löytynyt. Palaa edelliselle sivulle <a href="/account">tästä</a>.</h1>
-{% else %}
 <h1>Muokkaa osoitetta</h1>
 <form action="/edit-address/{{ id }}" method="POST">
     <label for="full_name">Nimi:</label>
@@ -24,6 +21,5 @@
     <button type="button" onclick="location.href = '/account/{{ address.address_owner }}'">Peruuta</button>
 </form>
 <a href="/../delete-address/{{ id }}" onclick="return confirm('Haluatko varmasti poistaa osoitteen?')">Poista osoite</a>
-{% endif %}
 
 {% endblock %}
