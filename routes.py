@@ -190,7 +190,7 @@ def edit_address(id):
             "edit_address.html", id=id, user_id=user_id, address=addresses.get_address(id),
             employee=users.is_employee(), number_of_items=number_of_items)
     if request.method == "POST":
-        user_id = request.form["address_owner"]
+        user_id = int(request.form["address_owner"])
         if user_id != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
         full_name = request.form["full_name"]
@@ -202,7 +202,7 @@ def edit_address(id):
         number_of_items = orders.get_total_number_of_items_in_cart(user_id)
         if not addresses.new_address(user_id, full_name, street_address, zip, city, phone, email):
             return render_template(
-                "new_address.html", id=id, user_id=user_id,
+                "edit_address.html", id=id, user_id=user_id, address=addresses.get_address(id),
                 employee=users.is_employee(), number_of_items=number_of_items)
         addresses.delete_address(id)
         flash("Osoitetiedot päivitetty!", category="success")
@@ -262,10 +262,7 @@ def add_item_to_cart(product_id):
         return errors.page_not_found()
     if not order_id:
         order_id = orders.create_new(user_id)
-    if orders.add_item(order_id, product_id):
-        flash("Tuote lisätty ostoskoriin!", category="success")
-    else:
-        flash("Tuotetta ei voitu lisätä ostoskoriin.", category="error")
+    orders.add_item(order_id, product_id)
     return redirect(url_for("product", id=product_id))
 
 @app.route("/delete-item/<int:product_id>")
