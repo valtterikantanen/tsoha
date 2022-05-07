@@ -8,6 +8,9 @@
 {% if status %}
 <p>Tila:{% if status == 'delivered' %} toimitettu {% elif status == 'open' %} avoin{% endif %}</p>
 {% endif %}
+{% if employee %}
+<p>Tekijä: <a href="../account/{{ order_info[0][5] }}">{{ order_info[0][6] }}</a></p>
+{% endif %}
 
 <h2>Tilaukseen kuuluvat tuotteet</h2>
 <table>
@@ -18,13 +21,13 @@
         <th>Kpl-hinta</th>
         <th>Yhteensä</th>
     </tr>
-    {% for order in order_information %}
     <tr>
-        <td>{{ "{:05d}".format(order.id) }}</td>
-        <td><a href="../product/{{ order.id }}">{{ order.name }}</a></td>
-        <td>{{ order.quantity }}</td>
-        <td>{{ ("%.2f" % order.price).replace(".", ",") }} €</td>
-        <td>{{ ("%.2f" % order.subtotal).replace(".", ",") }} €</td>
+    {% for product in order_info %}
+        <td>{{ "{:05d}".format(product.product_id) }}</td>
+        <td><a href="../product/{{ product.product_id }}">{{ product.name }}</a></td>
+        <td>{{ product.quantity }}</td>
+        <td>{{ ("%.2f" % product.price).replace(".", ",") }} €</td>
+        <td>{{ ("%.2f" % product.subtotal).replace(".", ",") }} €</td>
     </tr>
     {% endfor %}
 </table>

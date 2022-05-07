@@ -12,7 +12,7 @@ Tuotetta ei löytynyt
 <h1>Tuotetta ei löytynyt</h1>
 {% else %}
 <h1>{{ product.name }}</h1>
-<p>Tuotenumero: {{ id }}</p>
+<p>Tuotenumero: {{ "{:05d}".format(id) }}</p>
 <p>Hinta: {{ ("%.2f" % product.price).replace(".", ",") }} €</p>
 <p>Saatavilla: {{ product.quantity }}</p>
 {% if product.description %}

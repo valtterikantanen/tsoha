@@ -114,11 +114,12 @@ def send_order(order_id):
     db.session.commit()
 
 def get_order_information(order_id):
-    query = "SELECT A.id, A.name, B.price, I.quantity, B.price*I.quantity AS subtotal " \
-            "FROM products A, orders O, order_items I, (SELECT DISTINCT ON (product_id) " \
-            "product_id, price FROM prices WHERE created_at <= (SELECT sent_at FROM orders " \
-            "WHERE id=:order_id) ORDER BY product_id, created_at DESC) B WHERE A.id=B.product_id " \
-            "AND O.id=:order_id AND O.id=I.order_id AND A.id=I.product_id ORDER BY subtotal DESC"
+    query = "SELECT B.product_id, B.price, A.name, I.order_id, I.quantity, O.user_id, U.username, " \
+            "B.price*I.quantity AS subtotal FROM products A, orders O, order_items I, users U, " \
+            "(SELECT DISTINCT ON (product_id) product_id, price FROM prices WHERE created_at <= " \
+            "(SELECT sent_at FROM orders WHERE id=:order_id) ORDER BY product_id, created_at DESC) B " \
+            "WHERE U.id=O.user_id AND A.id=B.product_id AND A.id=I.product_id " \
+            "AND I.order_id=O.id AND O.id=:order_id ORDER BY subtotal DESC"
     order_information = db.session.execute(query, {"order_id": order_id}).fetchall()
     return order_information
 

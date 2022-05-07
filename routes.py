@@ -308,15 +308,15 @@ def order(order_id):
         return errors.page_not_found()
     if orders.get_order_owner(order_id) != user_id and not users.is_employee():
         return errors.authentication_error()
-    order_information = orders.get_order_information(order_id)
+    order_info = orders.get_order_information(order_id)
     grand_total = orders.get_total_sum(order_id)
     address = addresses.get_address(orders.get_address_id(order_id))
     sent_at = orders.get_order_time(order_id)
     number_of_items = orders.get_total_number_of_items_in_cart(user_id)
     return render_template(
         "order.html", order_id=order_id, user_id=user_id, employee=users.is_employee(),
-        number_of_items=number_of_items, order_information=order_information,
-        grand_total=grand_total, address=address, sent_at=sent_at, status=status)
+        number_of_items=number_of_items, order_info=order_info, grand_total=grand_total,
+        address=address, sent_at=sent_at, status=status)
 
 @app.route("/all-orders")
 def all_orders():
