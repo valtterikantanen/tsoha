@@ -28,11 +28,23 @@
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     {% block content %}{% endblock %}
     
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(category_filter=["success"]) %}
     {% if messages %}
-    {% for message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
+    <div class="flash-message flash-message-success">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% with messages = get_flashed_messages(category_filter=["error"]) %}
+    {% if messages %}
+    <div class="flash-message flash-message-error">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
     {% endif %}
     {% endwith %}
 </body>
