@@ -20,6 +20,11 @@ def get_formatted_visible_addresses(addresses):
                     f"{address[4]}, {address[5]}, {address[6]}"))
     return user_addresses
 
+def is_visible(id):
+    query = "SELECT visible FROM addresses WHERE id=:id"
+    visible = db.session.execute(query, {"id": id}).fetchone()
+    return visible[0] if visible else False
+
 def new_address(id, full_name, street_address, zip_code, city, phone_number, email):
     errors = validate_user_data(
         full_name, street_address, zip_code, city, phone_number.replace(" ", ""), email)
@@ -43,12 +48,9 @@ def get_address(id):
     return address
 
 def get_address_owner(id):
-    try:
-        query = "SELECT user_id FROM addresses WHERE id=:id"
-        address_owner = db.session.execute(query, {"id": id}).fetchone()[0]
-        return address_owner
-    except TypeError:
-        return False
+    query = "SELECT user_id FROM addresses WHERE id=:id"
+    address_owner = db.session.execute(query, {"id": id}).fetchone()
+    return address_owner[0] if address_owner else None
 
 def delete_address(id):
     query = "UPDATE addresses SET visible=FALSE WHERE id=:id"

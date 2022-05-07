@@ -47,15 +47,16 @@ def logout():
 
 @app.route("/customers")
 def customers():
-    customers = users.get_all_customers()
-    if not customers and len(customers) != 0:
+    if not users.is_employee():
         return errors.authentication_error()
-    return render_template("customers.html", employee=users.is_employee(), customers=customers)
+    customers = users.get_all_customers()
+    return render_template("customers.html", employee=True, customers=customers)
 
 @app.route("/make-admin/<int:id>")
 def make_admin(id):
-    if not users.make_admin(id):
+    if not users.is_employee():
         return errors.authentication_error()
+    users.make_admin(id)
     flash(f"Työntekijän oikeudet lisätty käyttäjälle {users.get_username_by_user_id(id)}!")
     return redirect(url_for("customers"))
 
@@ -63,16 +64,18 @@ def make_admin(id):
 def new_product():
     if request.method == "GET":
         if users.is_employee():
-            return render_template("new_product.html", employee=users.is_employee())
+            return render_template("new_product.html", employee=True)
         return errors.authentication_error()
     if request.method == "POST":
+        if not users.is_employee():
+            return errors.authentication_error()
         name = request.form["name"]
         description = request.form["description"]
         quantity = request.form["quantity"]
         price = request.form["price"]
         product_id = products.add_product(name, quantity, price, description)
         if not product_id:
-            return render_template("new_product.html", employee=users.is_employee())
+            return render_template("new_product.html", employee=True)
         return redirect(url_for("product", id=product_id))
 
 @app.route("/all-products", methods=["GET", "POST"])
@@ -104,6 +107,8 @@ def edit_product(id):
         return render_template(
             "edit_product.html", id=id, product=products.get_product_info(id), employee=True)
     if request.method == "POST":
+        if not users.is_employee():
+            return errors.authentication_error()
         name = request.form["name"]
         quantity = request.form["quantity"]
         price = request.form["price"]
@@ -155,6 +160,8 @@ def new_address(id):
             "new_address.html", user_id=id, employee=users.is_employee(),
             number_of_items=orders.get_total_number_of_items_in_cart(id))
     if request.method == "POST":
+        if id != users.get_user_id_by_username() and not users.is_employee():
+            return errors.authentication_error()
         full_name = request.form["full_name"]
         street_address = request.form["street_address"]
         zip_code = request.form["zip_code"]
@@ -172,6 +179,8 @@ def new_address(id):
 @app.route("/edit-address/<int:id>", methods=["GET", "POST"])
 def edit_address(id):
     if request.method == "GET":
+        if not addresses.is_visible(id):
+            return errors.page_not_found()
         if addresses.get_address_owner(id) != users.get_user_id_by_username():
             if not users.is_employee():
                 return errors.authentication_error()
@@ -181,13 +190,15 @@ def edit_address(id):
             "edit_address.html", id=id, user_id=user_id, address=addresses.get_address(id),
             employee=users.is_employee(), number_of_items=number_of_items)
     if request.method == "POST":
+        user_id = request.form["address_owner"]
+        if user_id != users.get_user_id_by_username() and not users.is_employee():
+            return errors.authentication_error()
         full_name = request.form["full_name"]
         street_address = request.form["street_address"]
         zip = request.form["zip_code"]
         city = request.form["city"].upper()
         phone = request.form["phone_number"]
         email = request.form["email"]
-        user_id = request.form["address_owner"]
         number_of_items = orders.get_total_number_of_items_in_cart(user_id)
         if not addresses.new_address(user_id, full_name, street_address, zip, city, phone, email):
             return render_template(
@@ -199,6 +210,8 @@ def edit_address(id):
 
 @app.route("/delete-address/<int:id>")
 def delete_address(id):
+    if not addresses.is_visible(id):
+        return errors.page_not_found()
     address_owner = addresses.get_address_owner(id)
     if not address_owner or (address_owner != users.get_user_id_by_username()):
         if not users.is_employee():
@@ -234,6 +247,10 @@ def update_quantity():
     product_id = request.form["product_id"]
     quantity = request.form["quantity"]
     order_id = request.form["order_id"]
+    if users.is_employee():
+        return errors.page_not_found()
+    if orders.get_order_owner(order_id) != users.get_user_id_by_username():
+        return errors.authentication_error()
     orders.update_item_quantity(product_id, quantity, order_id)
     if int(quantity) > orders.get_number_of_items(order_id, product_id):
         flash(f"Tuotteen määrää ei voitu päivittää, koska tuotetta on varastossa " \
@@ -246,6 +263,8 @@ def update_quantity():
 def add_item_to_cart(product_id):
     user_id = users.get_user_id_by_username()
     order_id = orders.get_unfinished_order_id(user_id)
+    if users.is_employee():
+        return errors.page_not_found()
     if not order_id:
         order_id = orders.create_new(user_id)
     if orders.add_item(order_id, product_id):
@@ -258,6 +277,8 @@ def add_item_to_cart(product_id):
 def delete_item(product_id):
     user_id = users.get_user_id_by_username()
     order_id = orders.get_unfinished_order_id(user_id)
+    if users.is_employee() or not order_id:
+        return errors.page_not_found()
     orders.update_item_quantity(product_id, "0", order_id)
     flash("Ostoskori päivitetty!", category="success")
     return redirect(url_for("cart"))
@@ -266,6 +287,10 @@ def delete_item(product_id):
 def add_address_to_order():
     address_id = request.form["address"]
     order_id = request.form["order_id"]
+    address_owner = addresses.get_address_owner(address_id)
+    order_owner = orders.get_order_owner(order_id)
+    if address_owner != order_owner and not users.is_employee():
+        return errors.authentication_error()
     orders.set_address_to_order(address_id, order_id)
     return redirect(url_for("cart"))
 

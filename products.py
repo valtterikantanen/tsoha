@@ -37,8 +37,8 @@ def get_product_info(id):
 
 def get_current_quantity(id):
     query = "SELECT quantity FROM products WHERE id=:id"
-    quantity = db.session.execute(query, {"id": id}).fetchone()[0]
-    return quantity
+    quantity = db.session.execute(query, {"id": id}).fetchone()
+    return quantity[0] if quantity else None
 
 def get_price_history(id):
     query = "SELECT price, created_at FROM prices WHERE product_id=:id ORDER BY created_at DESC"

@@ -59,7 +59,7 @@ def get_number_of_items(order_id, product_id):
 def add_item(order_id, product_id):
     current_quantity = get_number_of_items(order_id, product_id)
     maximum = products.get_current_quantity(product_id)
-    if maximum < current_quantity + 1:
+    if not maximum or maximum < current_quantity + 1:
         return False
     if current_quantity == 0:
         query = "INSERT INTO order_items (order_id, product_id, quantity) " \

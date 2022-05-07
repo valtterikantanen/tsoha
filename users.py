@@ -73,16 +73,11 @@ def get_username_by_user_id(user_id):
         return False
 
 def get_all_customers():
-    if not is_employee():
-        return False
     query = "SELECT id, username FROM users WHERE role='customer' ORDER BY username"
     customers = db.session.execute(query).fetchall()
     return customers
 
 def make_admin(id):
-    if not is_employee():
-        return False
     query = "UPDATE users SET role='employee' WHERE id=:id"
     db.session.execute(query, {"id": id})
     db.session.commit()
-    return True
