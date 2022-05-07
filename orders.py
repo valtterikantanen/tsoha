@@ -62,14 +62,19 @@ def add_item(order_id, product_id):
     current_quantity = get_number_of_items(order_id, product_id)
     maximum = products.get_current_quantity(product_id)
     if not maximum or maximum < current_quantity + 1:
+        flash("Tuotetta ei voitu lisätä ostoskoriin.", category="error")
         return False
     if current_quantity == 0:
         query = "INSERT INTO order_items (order_id, product_id, quantity) " \
                 "VALUES (:order_id, :product_id, 1)"
         db.session.execute(query, {"order_id": order_id, "product_id": product_id})
-        db.session.commit()
     else:
-        update_item_quantity(product_id, current_quantity + 1, order_id)
+        query = "UPDATE order_items SET quantity=:quantity " \
+                "WHERE product_id=:product_id AND order_id=:order_id"
+        db.session.execute(query, {"quantity": current_quantity + 1, "product_id": product_id,
+                                   "order_id": order_id})
+    db.session.commit()
+    flash("Tuote lisätty ostoskoriin!", category="success")
     return True
 
 def update_item_quantity(product_id, quantity, order_id):
