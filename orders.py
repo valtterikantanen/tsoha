@@ -1,3 +1,5 @@
+from flask import flash
+
 from db import db
 import products
 
@@ -14,8 +16,8 @@ def get_order_owner(order_id):
 
 def get_order_time(order_id):
     query = "SELECT sent_at FROM orders WHERE id=:order_id"
-    sent_at = db.session.execute(query, {"order_id": order_id}).fetchone()[0]
-    return sent_at
+    sent_at = db.session.execute(query, {"order_id": order_id}).fetchone()
+    return sent_at[0] if sent_at else None
 
 def get_unfinished_order_id(user_id):
     query = "SELECT id FROM orders WHERE user_id=:user_id AND status='unfinished'"
@@ -41,8 +43,8 @@ def get_total_sum(order_id):
             "(product_id) product_id, price FROM prices WHERE created_at <= (SELECT COALESCE " \
             "(sent_at, NOW()) FROM orders WHERE id=:order_id) ORDER BY product_id, " \
             "created_at DESC) B WHERE I.product_id=B.product_id AND I.order_id=:order_id"
-    total_sum = db.session.execute(query, {"order_id": order_id}).fetchone()[0]
-    return total_sum
+    total_sum = db.session.execute(query, {"order_id": order_id}).fetchone()
+    return total_sum[0] if total_sum else None
 
 def get_total_number_of_items_in_cart(user_id):
     order_id = get_unfinished_order_id(user_id)
@@ -72,7 +74,10 @@ def add_item(order_id, product_id):
 
 def update_item_quantity(product_id, quantity, order_id):
     maximum = products.get_current_quantity(product_id)
+    ending = "" if maximum == 1 else "tta"
     if maximum < int(quantity):
+        flash(f"Tuotteen määrää ei voitu päivittää, koska tuotetta on " \
+            f"varastossa {maximum} kappale{ending}.", category="error")
         return False
     if quantity == "0":
         query = "DELETE FROM order_items WHERE product_id=:product_id AND order_id=:order_id"
@@ -83,6 +88,7 @@ def update_item_quantity(product_id, quantity, order_id):
         db.session.execute(query, {"quantity": quantity, "product_id": product_id,
                                    "order_id": order_id})
     db.session.commit()
+    flash("Ostoskori päivitetty!", category="success")
     return True
 
 def set_address_to_order(address_id, order_id):

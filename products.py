@@ -48,8 +48,8 @@ def get_price_history(id):
 def get_current_price(product_id):
     query = "SELECT price FROM prices WHERE product_id=:product_id " \
             "ORDER BY created_at DESC LIMIT 1"
-    current_price = db.session.execute(query, {"product_id": product_id}).fetchone()[0]
-    return current_price
+    current_price = db.session.execute(query, {"product_id": product_id}).fetchone()
+    return current_price[0] if current_price else None
 
 def edit_product(id, name, quantity, price, description):
     if validate_product_data(name, quantity, price, description):
@@ -85,18 +85,18 @@ def validate_product_data(name, quantity, price, description):
         quantity = int(quantity)
         if quantity < 0:
             flash("Tuotteen saldo ei voi olla negatiivinen", category="error")
+            errors = True
     except ValueError:
         flash("Syötä varastosaldo", category="error")
-        print(quantity)
         errors = True
 
     try:
         price = float(price)
         if not 0 <= price <= 999_999.99:
             flash("Tuotteen hinnan on oltava välillä 0,00–999 999,99 €", category="error")
+            errors = True
     except ValueError:
         flash("Syötä hinta", category="error")
-        print(price)
         errors = True
 
     return errors

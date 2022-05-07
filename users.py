@@ -55,22 +55,15 @@ def is_logged_in():
     return session.get("username")
 
 def get_user_id_by_username(username=None):
-    if not username:
-        username = session.get("username")
-    try:
-        query = "SELECT id FROM users WHERE username=:username"
-        user_id = db.session.execute(query, {"username": username}).fetchone()[0]
-        return user_id
-    except TypeError:
-        return False
+    username = session.get("username") if not username else username
+    query = "SELECT id FROM users WHERE username=:username"
+    user_id = db.session.execute(query, {"username": username}).fetchone()
+    return user_id[0] if user_id else None
 
 def get_username_by_user_id(user_id):
-    try:
-        query = "SELECT username FROM users WHERE id=:user_id"
-        username = db.session.execute(query, {"user_id": user_id}).fetchone()[0]
-        return username
-    except TypeError:
-        return False
+    query = "SELECT username FROM users WHERE id=:user_id"
+    username = db.session.execute(query, {"user_id": user_id}).fetchone()
+    return username[0] if username else None
 
 def get_all_customers():
     query = "SELECT id, username FROM users WHERE role='customer' ORDER BY username"

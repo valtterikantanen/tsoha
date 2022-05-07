@@ -252,11 +252,6 @@ def update_quantity():
     if orders.get_order_owner(order_id) != users.get_user_id_by_username():
         return errors.authentication_error()
     orders.update_item_quantity(product_id, quantity, order_id)
-    if int(quantity) > orders.get_number_of_items(order_id, product_id):
-        flash(f"Tuotteen määrää ei voitu päivittää, koska tuotetta on varastossa " \
-            f"{products.get_current_quantity(product_id)} kappaletta.", category="error")
-    else:
-        flash("Ostoskori päivitetty!", category="success")
     return redirect(url_for("cart"))
 
 @app.route("/add-item-to-cart/<int:product_id>")
@@ -280,7 +275,6 @@ def delete_item(product_id):
     if users.is_employee() or not order_id:
         return errors.page_not_found()
     orders.update_item_quantity(product_id, "0", order_id)
-    flash("Ostoskori päivitetty!", category="success")
     return redirect(url_for("cart"))
 
 @app.route("/add-address-to-order", methods=["POST"])
