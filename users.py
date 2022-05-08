@@ -44,6 +44,11 @@ def login(username, password):
     flash("Väärä salasana", category="error")
     return False
 
+def user_exists(user_id):
+    query = "SELECT 1 FROM users WHERE id=:user_id"
+    result = db.session.execute(query, {"user_id": user_id})
+    return True if result.fetchone() else False
+
 def logout():
     del session["username"]
 
@@ -52,7 +57,9 @@ def is_employee(user_id=None):
         user_id = get_user_id_by_username()
     query = "SELECT role FROM users WHERE id=:user_id"
     role = db.session.execute(query, {"user_id": user_id}).fetchone()
-    return True if role[0] == "employee" else False
+    if not role or role[0] != "employee":
+        return False
+    return True
 
 def is_logged_in():
     return session.get("username")

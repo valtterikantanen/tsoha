@@ -132,7 +132,7 @@ def account(id):
     user_id = users.get_user_id_by_username()
     if user_id != id and not users.is_employee():
         return errors.authentication_error()
-    if users.is_employee(id):
+    if users.is_employee(id) or not users.user_exists(id):
         return errors.page_not_found()
     username = users.get_username_by_user_id(id)
     number_of_items = orders.get_total_number_of_items_in_cart(id)
