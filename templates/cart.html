@@ -19,6 +19,7 @@
         <td>
             <form action="/update-quantity" METHOD="POST">
             <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
             <input type="hidden" id="order_id" name="order_id" value="{{ product.order_id }}">
             <input type="number" id="quantity" name="quantity" min="0" max="{{ product.maximum }}" value="{{ product.quantity }}" onchange="this.form.submit()">
             </form>
@@ -35,6 +36,7 @@
 <h3>Toimitusosoite</h3>
 <form action="/add-address-to-order" METHOD="POST">
     <input type="hidden" id="add_address_order_id" name="order_id">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
     <select name="address" onchange="this.form.submit()">
         {% if not default_address %}
         <option value="" disabled selected>Valitse toimitusosoite...</option>

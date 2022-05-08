@@ -6,6 +6,7 @@
 
 {% if products %}
 <form action="/all-products" METHOD="POST">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
     <select id="order" name="order" onchange="this.form.submit()">
         <option value="price-asc" {% if order == "price-asc" %} selected {% endif %}>Edullisimmat ensin</option>
         <option value="price-desc" {% if order == "price-desc" %} selected {% endif %}>Kalleimmat ensin</option>

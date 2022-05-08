@@ -1,6 +1,7 @@
 import re
 
 from flask import flash, session
+import secrets
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import db
@@ -27,6 +28,7 @@ def register(username, password1, password2):
     db.session.execute(query, {"username": username, "password": generate_password_hash(password1)})
     db.session.commit()
     session["username"] = username
+    session["csrf_token"] = secrets.token_hex(16)
     return True
 
 def login(username, password):
@@ -37,6 +39,7 @@ def login(username, password):
         return False
     if check_password_hash(user.password, password):
         session["username"] = username
+        session["csrf_token"] = secrets.token_hex(16)
         return True
     flash("Väärä salasana", category="error")
     return False

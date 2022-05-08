@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, session, url_for
 
 from app import app
 import addresses
@@ -67,6 +67,8 @@ def new_product():
             return render_template("new_product.html", employee=True)
         return errors.authentication_error()
     if request.method == "POST":
+        if session["csrf_token"] != request.form["csrf_token"]:
+            abort(403)
         if not users.is_employee():
             return errors.authentication_error()
         name = request.form["name"]
@@ -83,6 +85,8 @@ def all_products():
     if not users.is_logged_in():
         return errors.authentication_error()
     order = request.form["order"] if request.method == "POST" else "alpha-asc"
+    if request.method == "POST" and session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     user_id = users.get_user_id_by_username()
     number_of_items = orders.get_total_number_of_items_in_cart(user_id)
     return render_template(
@@ -107,6 +111,8 @@ def edit_product(id):
         return render_template(
             "edit_product.html", id=id, product=products.get_product_info(id), employee=True)
     if request.method == "POST":
+        if session["csrf_token"] != request.form["csrf_token"]:
+            abort(403)
         if not users.is_employee():
             return errors.authentication_error()
         name = request.form["name"]
@@ -160,6 +166,8 @@ def new_address(id):
             "new_address.html", user_id=id, employee=users.is_employee(),
             number_of_items=orders.get_total_number_of_items_in_cart(id))
     if request.method == "POST":
+        if session["csrf_token"] != request.form["csrf_token"]:
+            abort(403)
         if id != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
         full_name = request.form["full_name"]
@@ -190,6 +198,8 @@ def edit_address(id):
             "edit_address.html", id=id, user_id=user_id, address=addresses.get_address(id),
             employee=users.is_employee(), number_of_items=number_of_items)
     if request.method == "POST":
+        if session["csrf_token"] != request.form["csrf_token"]:
+            abort(403)
         user_id = int(request.form["address_owner"])
         if user_id != users.get_user_id_by_username() and not users.is_employee():
             return errors.authentication_error()
@@ -247,6 +257,8 @@ def update_quantity():
     product_id = request.form["product_id"]
     quantity = request.form["quantity"]
     order_id = request.form["order_id"]
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     if users.is_employee():
         return errors.page_not_found()
     if orders.get_order_owner(order_id) != users.get_user_id_by_username():
@@ -276,6 +288,8 @@ def delete_item(product_id):
 
 @app.route("/add-address-to-order", methods=["POST"])
 def add_address_to_order():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        abort(403)
     address_id = request.form["address"]
     order_id = request.form["order_id"]
     address_owner = addresses.get_address_owner(address_id)

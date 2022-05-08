@@ -9,6 +9,7 @@
     Postitoimipaikka: <input type="text" name="city" value="{{ city }}" required> <br>
     Puhelinnumero: <input type="text" name="phone_number" value="{{ phone_number }}" required> <br>
     Sähköpostiosoite: <input type="email" name="email" value="{{ email }}" required> <br>
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
     <input type="submit" value="Lisää uusi osoite">
 </form>
 {% endblock %}
