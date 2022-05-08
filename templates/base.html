@@ -8,6 +8,7 @@
 </head>
 
 <body>
+    <div class="container">
     <header>
         <nav>
             <ul>
@@ -26,7 +27,7 @@
         </nav>
     </header>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    {% block content %}{% endblock %}
+    <div class="content">{% block content %}{% endblock %}
     
     {% with messages = get_flashed_messages(category_filter=["success"]) %}
     {% if messages %}
@@ -47,6 +48,8 @@
     </div>
     {% endif %}
     {% endwith %}
+    </div>
+    </div>
 </body>
 
 </html>

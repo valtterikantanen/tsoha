@@ -7,13 +7,13 @@
 {% if customers %}
 <table>
     <tr>
+        <th>Asiakasnumero</th>
         <th>Käyttäjätunnus</th>
-        <th></th>
     </tr>
     {% for customer in customers %}
     <tr>
-        <td>{{ customer.username }}</td>
-        <td><button type="button" onclick="location.href = '/account/{{ customer.id }}'">Tarkastele käyttäjätietoja</button></td>
+        <td>{{ customer.id }}</td>
+        <td><a href="/account/{{ customer.id }}">{{ customer.username }}</a></td>
     </tr>
     {% endfor %}
 </table>

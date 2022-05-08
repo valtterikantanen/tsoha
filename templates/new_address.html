@@ -2,14 +2,20 @@
 {% block title %}Lisää uusi osoite{% endblock %}
 {% block content %}
 <h1>Lisää uusi osoite</h1>
-<form action="/new-address/{{ user_id }}" method="POST">
-    Nimi: <input type="text" name="full_name" value="{{ full_name }}" required> <br>
-    Katuosoite: <input type="text" name="street_address" value="{{ street_address }}" required> <br>
-    Postinumero: <input type="text" name="zip_code" value="{{ zip_code }}" required> <br>
-    Postitoimipaikka: <input type="text" name="city" value="{{ city }}" required> <br>
-    Puhelinnumero: <input type="text" name="phone_number" value="{{ phone_number }}" required> <br>
-    Sähköpostiosoite: <input type="email" name="email" value="{{ email }}" required> <br>
+<form action="/new-address/{{ user_id }}" method="POST" class="form">
+    <label for="full_name" class="form-label">Nimi</label><br>
+    <input type="text" name="full_name" placeholder="Nimi" value="{{ full_name }}" class="form-input" required><br>
+    <label for="street_address" class="form-label">Katuosoite</label><br>
+    <input type="text" name="street_address" placeholder="Katuosoite" value="{{ street_address }}" class="form-input" required><br>
+    <label for="zip_code" class="form-label">Postinumero</label><br>
+    <input type="text" name="zip_code" placeholder="Postinumero" value="{{ zip_code }}" class="form-input" required><br>
+    <label for="city" class="form-label">Postitoimipaikka</label><br>
+    <input type="text" id="city" name="city" placeholder="Postitoimipaikka" value="{{ city }}" class="form-input" onchange="toUpperCase()" required><br>
+    <label for="phone_number" class="form-label">Puhelinnumero</label><br>
+    <input type="text" name="phone_number" placeholder="Puhelinnumero" value="{{ phone_number }}" class="form-input" required><br>
+    <label for="email" class="form-label">Sähköpostiosoite</label><br>
+    <input type="email" name="email" placeholder="Sähköpostiosoite" value="{{ email }}" class="form-input" required><br>
     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    <input type="submit" value="Lisää uusi osoite">
-</form>
+    <button type="submit">Lisää uusi osoite</button>
+
 {% endblock %}

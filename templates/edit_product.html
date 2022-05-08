@@ -5,17 +5,17 @@
 <h1>Tuotetta ei löytynyt</h1>
 {% else %}
 <h1>Muokkaa tuotetietoja</h1>
-<form action="/edit-product/{{ id }}" method="POST">
-    <label for="name">Nimi:</label>
-    <input type="text" id="name" name="name" value="{{ product.name }}"><br>
-    <label for="quantity">Saldo:</label>
-    <input type="number" id="quantity" name="quantity" min="0" value="{{ product.quantity }}"><br>
-    <label for="price">Hinta:</label>
-    <input type="number" id="price" name="price" step="0.01" min="0" max="999999.99" value="{{ product.price }}"><br>
-    <label for="description">Kuvaus:</label>
-    <textarea name="description" rows="4" cols="50">{% if product.description %}{{ product.description }}{% endif %}</textarea><br>
+<form action="/edit-product/{{ id }}" method="POST" class="form">
+    <label for="name" class="form-label">Nimi</label><br>
+    <input type="text" name="name" value="{{ product.name }}" class="form-input"><br>
+    <label for="quantity" class="form-label">Saldo</label><br>
+    <input type="number" name="quantity" min="0" value="{{ product.quantity }}" class="form-input"><br>
+    <label for="price" class="form-label">Hinta</label><br>
+    <input type="number" name="price" id="price" step="0.01" min="0" max="999999.99" value="{{ product.price }}" class="form-input"><br>
+    <label for="description" class="form-label">Kuvaus</label><br>
+    <textarea name="description" rows="4" cols="50" class="form-input">{% if product.description %}{{ product.description }}{% endif %}</textarea><br>
     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    <input type="submit" value="Päivitä tiedot"><br>
+    <button type="submit">Päivitä tiedot</button>
     <button type="button" onclick="location.href = '/product/{{ id }}'">Peruuta</button>
 </form>
 {% endif %}

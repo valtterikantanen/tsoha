@@ -8,12 +8,15 @@
 </head>
 
 <body>
+    <div class="container content">
     <h1>Kirjaudu sisään</h1>
-    <form action="/" method="POST">
-        Käyttäjätunnus: <input type="text" name="username"> <br>
-        Salasana: <input type="password" name="password"> <br>
-        <input type="submit" value="Kirjaudu sisään">
-    </form>
+        <form action="/" method="POST" class="form">
+            <label for="username" class="form-label">Käyttäjätunnus</label><br>
+            <input type="text" name="username" placeholder="Käyttäjätunnus" class="form-input"> <br>
+            <label for="password" class="form-label">Salasana</label><br>
+            <input type="password" name="password" placeholder="Salasana" class="form-input"> <br>
+            <button type="submit">Kirjaudu sisään</button>
+        </form>
     <a href="/register">Luo uusi käyttäjätili</a>
     {% with messages = get_flashed_messages(category_filter=["success"]) %}
     {% if messages %}
@@ -34,6 +37,7 @@
     </div>
     {% endif %}
     {% endwith %}
+    </div>
 </body>
 
 </html>

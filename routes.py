@@ -77,7 +77,9 @@ def new_product():
         price = request.form["price"]
         product_id = products.add_product(name, quantity, price, description)
         if not product_id:
-            return render_template("new_product.html", employee=True)
+            return render_template(
+                "new_product.html", employee=True, name=name, description=description,
+                quantity=quantity, price=price)
         return redirect(url_for("product", id=product_id))
 
 @app.route("/all-products", methods=["GET", "POST"])
@@ -302,6 +304,9 @@ def add_address_to_order():
 @app.route("/send-order/<int:order_id>")
 def send_order(order_id):
     user_id = orders.get_order_owner(order_id)
+    if orders.get_order_status(order_id) != "unfinished":
+        flash("Tilaus on jo lähetetty!", category="error")
+        return redirect(url_for("account", id=user_id))
     if user_id != users.get_user_id_by_username() and not users.is_employee():
         return errors.authentication_error()
     if not orders.get_address_id(order_id):

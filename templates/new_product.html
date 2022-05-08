@@ -2,12 +2,15 @@
 {% block title %}Lisää uusi tuote{% endblock %}
 {% block content %}
 <h1>Lisää uusi tuote</h1>
-<form action="/new-product" method="POST">
-    Nimi: <input type="text" name="name"> <br>
-    Saldo: <input type="number" name="quantity" min="0"> <br>
-    Hinta: <input type="number" name="price" step="0.01" min="0" max="999999.99" lang="fi"> <br>
-    Kuvaus: <textarea name="description" rows="4" cols="50"></textarea> <br>
+<form action="/new-product" method="POST" class="form">
+    <label for="name" class="form-label">Nimi</label><br>
+    <input type="text" name="name" value="{{ name }}" class="form-input"><br>
+    <label for="quantity" class="form-label">Saldo</label><br>
+    <input type="number" name="quantity" min="0" value="{{ quantity }}" class="form-input"><br>
+    <label for="price" class="form-label">Hinta</label><br>
+    <input type="number" name="price" id="price" step="0.01" min="0" max="999999.99" value="{{ price }}" class="form-input"><br>
+    <label for="description" class="form-label">Kuvaus</label><br>
+    <textarea name="description" rows="4" cols="50" class="form-input">{{ description }}</textarea><br>
     <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    <input type="submit" value="Lisää uusi tuote">
-</form>
+    <button type="submit">Lisää uusi tuote</button>
 {% endblock %}

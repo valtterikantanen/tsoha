@@ -8,14 +8,17 @@
 </head>
 
 <body>
+    <div class="container content">
     <h1>Luo uusi käyttäjätili</h1>
     <p>Onko sinulla tili? <a href="/">Kirjaudu sisään</a></p>
-    <form action="/register" method="POST">
-        Käyttäjätunnus: <input type="text" name="username"> <br>
-        Salasana: <input type="password" name="password1"> <br>
-        Vahvista salasana: <input type="password" name="password2"> <br>
-        <input type="submit" value="Luo käyttäjätili">
-    </form>
+    <form action="/register" method="POST" class="form">
+        <label for="username" class="form-label">Käyttäjätunnus</label><br>
+        <input type="text" name="username" placeholder="Käyttäjätunnus" class="form-input"> <br>
+        <label for="password1" class="form-label">Salasana</label><br>
+        <input type="password" name="password1" placeholder="Salasana" class="form-input"> <br>
+        <label for="password2" class="form-label">Vahvista salasana</label><br>
+        <input type="password" name="password2" placeholder="Vahvista salasana" class="form-input"> <br>
+        <button type="submit">Luo käyttäjätili</button>
     {% with messages = get_flashed_messages(category_filter=["success"]) %}
     {% if messages %}
     <div class="flash-message flash-message-success">
@@ -35,6 +38,7 @@
     </div>
     {% endif %}
     {% endwith %}
+    </div>
 </body>
 
 </html>

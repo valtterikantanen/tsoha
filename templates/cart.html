@@ -26,12 +26,12 @@
         </td>
         <td>{{ ("%.2f" % product.price).replace(".", ",") }} €</td>
         <td>{{ ("%.2f" % product.subtotal).replace(".", ",") }} €</td>
-        <td><button type="button" onclick="location.href = '/delete-item/{{ product.id }}'">Poista</button></td>
+        <td><a href="/delete-item/{{ product.id }}">Poista</a></td>
     </tr>
     {% endfor %}
 </table>
 <br>
-<b>Yhteensä: {{ ("%.2f" % total_sum).replace(".", ",") }} €</b>
+<strong>Yhteensä: {{ ("%.2f" % total_sum).replace(".", ",") }} €</strong>
 {% if user_addresses %}
 <h3>Toimitusosoite</h3>
 <form action="/add-address-to-order" METHOD="POST">

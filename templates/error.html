@@ -8,6 +8,7 @@
 </head>
 
 <body>
+    <div class="container content">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     {% for message in messages %}
@@ -17,6 +18,7 @@
     {% endwith %}
 
     <p><a href="/">Palaa etusivulle</a></p>
+    </div>
 </body>
 
 </html>

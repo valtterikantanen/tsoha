@@ -15,6 +15,7 @@ Omat asiakastiedot
 <h1>Omat asiakastiedot</h1>
 {% endif %}
 <p>Käyttäjänimi: {{ username }}</p>
+<p>Asiakasnumero: {{ user_id }}</p>
 <h2>Osoitteet</h2>
 {% if addresses %}
 <table>
@@ -25,18 +26,25 @@ Omat asiakastiedot
         <th>Puhelinnumero</th>
         <th>Sähköpostiosoite</th>
         {% if employee %}<th>Näkyvissä</th>{% endif %}
-        <th></th>
     </tr>
     {% for address in addresses %}
     {% if address.visible or employee %}
-    <tr>
-        <td>{{ address.full_name }}</a></td>
-        <td>{{ address.street_address }}</td>
-        <td>{{ address.zip_code }} {{ address.city }}</td>
-        <td>{{ address.phone_number }}</td>
-        <td>{{ address.email }}</td>
-        {% if employee %}<td>{% if address.visible %}&#x2714{% else %}&#x2715{% endif %}</td>{% endif %}
-        {% if address.visible %}<td><button type="button" onclick="location.href = '/edit-address/{{ address.id }}'">Muokkaa</button></td>{% endif %}
+    <tr class="address-container">
+        {% if address.visible %}
+        <td><a href="/edit-address/{{ address.id }}" title="Muokkaa">{{ address.full_name }}</a></td>
+        <td><a href="/edit-address/{{ address.id }}" title="Muokkaa">{{ address.street_address }}</a></td>
+        <td><a href="/edit-address/{{ address.id }}" title="Muokkaa">{{ address.zip_code }} {{ address.city }}</a></td>
+        <td><a href="/edit-address/{{ address.id }}" title="Muokkaa">{{ address.phone_number }}</a></td>
+        <td><a href="/edit-address/{{ address.id }}" title="Muokkaa">{{ address.email }}</a></td>
+        {% if employee %}<td><a href="/edit-address/{{ address.id }}" title="Muokkaa">&#x2714</td>{% endif %}</a>
+        {% else %}
+        <td>{{ address.full_name }}</td>
+        <td>{{ address.street_address }}</a></td>
+        <td>{{ address.zip_code }} {{ address.city }}</a></td>
+        <td>{{ address.phone_number }}</a></td>
+        <td>{{ address.email }}</a></td>
+        {% if employee %}<td>&#x2715</td>{% endif %}
+        {% endif %}
     </tr>
     {% endif %}
     {% endfor %}
