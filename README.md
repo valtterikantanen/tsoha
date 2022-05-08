@@ -42,3 +42,48 @@ Tässä vaiheessa olen priorisoinut sovelluksen perustoiminnallisuuksia. Esimerk
 ### Välipalautus 3
 
 Toimintoja on nyt laajennettu, ja suurin osa toiminnallisuuksista on nyt toteutettu. Tietokantataulujen määrä on kasvanut kahdesta kuuteen. Koodia on myös selkiytetty jakamalla sitä useampaan tiedostoon. Ennen lopullista palautusta sovellukseen lisätään vielä loputkin ominaisuudet. Myös sovelluksen ulkoasua parannetaan.
+
+### Lopullinen palautus
+
+Loputkin toiminnallisuudet on lisätty sovellukseen. Tietoturvaa on parannettu lisäämällä käyttäjäoikeuksien tarkistuksia ja estämällä CSRF-haavoittuvuuden hyödyntäminen. Myös ulkoasua on parannettu CSS:n avulla.
+
+## Asentaminen omalle tietokoneelle
+
+### Vaaditut ohjelmistot
+
+* [Python](https://www.python.org/downloads/) (versio 3.8.10 tai uudempi)
+* [pip-paketinhallintajärjestelmä](https://pip.pypa.io/en/stable/)
+* Pythonin standardikirjastoon kuuluva [venv-kirjasto](https://docs.python.org/3/library/venv.html)
+* [Git](https://git-scm.com/downloads/)-versionhallintajärjestelmä
+* [PostgreSQL](https://www.postgresql.org/download/)-tietokannan hallintajärjestelmä
+
+### Asennus ja ajaminen paikallisesti
+
+Aloita lataamalla sovelluksen lähdekoodi [zip-tiedostona](https://github.com/valtterikantanen/tsoha/archive/refs/heads/master.zip) tai kloonaa projekti komennolla
+
+```bash
+$ git clone https://github.com/valtterikantanen/tsoha.git
+```
+Luo virtuaaliympäristö ja aktivoi se komennoilla
+```bash
+$ python3 -m venv venv
+$ source venv/bin/activate
+```
+Asenna sovelluksen riippuvuudet komennolla
+```bash
+(venv) $ pip install -r requirements.txt
+```
+Luo tarvittavat tietokantataulut komennolla
+```bash
+$ psql < schema.sql
+```
+Palvelimen voi käynnistää komennolla
+```bash
+(venv) $ flask run
+```
+Nyt palvelin on käynnissä ja sovellusta voi käyttää osoitteessa `http://127.0.0.1:5000/`.
+
+### Muuta
+
+* Ohjelma olettaa, että tiedostossa `.env` on määritelty tietokannan osoite muuttujassa `DATABASE_URL` sekä salainen avain muuttujassa `SECRET_KEY`.
+* Halutessaan tietokantaan voi syöttää myös esimerkkidataa komennolla `psql < example.sql`, mikä poistaa nykyiset taulut ja luo tilalle uudet. Tällöin luodaan myös kaksi käyttäjää, joiden käyttäjätunnukset ja salasanat ovat samat kuin ylempänä Heroku-otsikon alla.
