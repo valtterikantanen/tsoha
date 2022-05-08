@@ -4,11 +4,11 @@ body {
     max-width: 65em;
     font-family: Helvetica, Arial, sans-serif;
     color: #353D48;
-    background-color: #87ddec;
+    background-color: #87DDEC;
 }
 
-h1, h2, h3, tr, strong, .form-label {
-    color: rgb(40, 40, 40);
+h1, h2, h3, tr, strong, .form-label, .address-container a {
+    color: #282828;
 }
 
 nav {
@@ -17,8 +17,8 @@ nav {
     font-size: 1.1em;
     padding: 0;
     font-weight: 200;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    background-color: #86589b;
+    border-bottom: 1px solid rgba(255, 255, 255, .3);
+    background-color: #86589B;
 }
 
 nav ul {
@@ -51,12 +51,44 @@ th {
     text-align: center;
 }
 
+table, tr, th {
+    border-collapse: collapse;
+    padding: 0 0.5em;
+}
+
+td {
+    padding: 0 0.5em;
+}
+
 body, input, textarea, button {
     font-family: Helvetica, Arial, sans-serif;
 }
 
+textarea {
+    resize: none;
+}
+
 p {
     margin: 0.5em 0;
+}
+
+button {
+    background-color: #7083C4;
+    border-style: none;
+    border-radius: 10px;
+    color: white;
+    padding: 10px 10px;
+    font-size: 16px;
+    margin-bottom: 1em;
+    width: 30%;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #4A61AC;
 }
 
 .flash-message {
@@ -74,11 +106,11 @@ p {
 }
 
 .flash-message-success {
-    background-color: rgb(21, 194, 21);
+    background-color: #15C215;
 }
 
 .flash-message-error {
-    background-color: #f44336;
+    background-color: #F44336;
 }
 
 .form {
@@ -88,7 +120,7 @@ p {
 .form-label {
     font-weight: 900;
     font-size: 1.25em;
-    color: rgb(40, 40, 40);
+    color: #282828;
 }
 
 .form-input {
@@ -98,7 +130,7 @@ p {
 }
 
 .container {
-    background-color: white;
+    background-color: #FFFFFF;
     height: 100%;
 }
 
@@ -106,46 +138,17 @@ p {
     padding: 1em;
 }
 
-table, tr, th {
-    border-collapse: collapse;
-    padding: 0 0.5em;
-}
-
-td {
-    padding: 0 0.5em;
-}
-
 .address-container {
-    background-color: rgb(230, 224, 224);
+    background-color: #E6E0E0;
 }
 
 .address-container:hover {
-    background-color: rgb(172, 170, 170);
+    background-color: #ACAAAA;
 }
 
 .address-container a {
     display: block;
     text-decoration: none;
-    color: black;
-}
-
-button {
-    background-color: #7083c4;
-    border-style: none;
-    border-radius: 10px;
-    color: white;
-    padding: 10px 10px;
-    font-size: 16px;
-    margin-bottom: 1em;
-    width: 30%;
-    text-align: center;
-    text-decoration: none;
-    display: block;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #4a61ac;
 }
 
 @keyframes fadeElement {
