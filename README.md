@@ -4,15 +4,6 @@ Harjoitustyön aiheena on sovellus, jonka avulla on mahdollista hoitaa verkkokau
 
 Sovellus on laadittu Helsingin yliopiston kevään 2022 kurssille [Aineopintojen harjoitustyö: Tietokantasovellus](https://hy-tsoha.github.io/materiaali/).
 
-## Heroku
-
-Sovellusta voi käyttää [Herokussa](https://vast-coast-44980.herokuapp.com/). Kirjautumiseen voi käyttää seuraavia tunnuksia:
-
-|    Rooli    | Käyttäjätunnus |  Salasana  |
-| :---------- | :------------- | :--------- |
-| asiakas     | `customer`     | `qXd9Y8ok` |
-| työntekijä  | `admin`        | `op33RfQ4` |
-
 ## Ominaisuudet
 
 ### Toimivat
@@ -86,4 +77,9 @@ Nyt palvelin on käynnissä ja sovellusta voi käyttää osoitteessa `http://127
 ### Muuta
 
 * Ohjelma olettaa, että tiedostossa `.env` on määritelty tietokannan osoite muuttujassa `DATABASE_URL` sekä salainen avain muuttujassa `SECRET_KEY`.
-* Halutessaan tietokantaan voi syöttää myös esimerkkidataa komennolla `psql < example.sql`, mikä poistaa nykyiset taulut ja luo tilalle uudet. Tällöin luodaan myös kaksi käyttäjää, joiden käyttäjätunnukset ja salasanat ovat samat kuin ylempänä Heroku-otsikon alla.
+* Halutessaan tietokantaan voi syöttää myös esimerkkidataa komennolla `psql < example.sql`, mikä poistaa nykyiset taulut ja luo tilalle uudet. Tällöin luodaan myös kaksi käyttäjää, joiden käyttäjätunnukset ja salasanat ovat seuraavat:
+
+|    Rooli    | Käyttäjätunnus |  Salasana  |
+| :---------- | :------------- | :--------- |
+| asiakas     | `customer`     | `qXd9Y8ok` |
+| työntekijä  | `admin`        | `op33RfQ4` |
